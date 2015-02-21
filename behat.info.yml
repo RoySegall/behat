@@ -1,0 +1,7 @@
+name: Behat
+type: module
+description: 'Provding a BDD framework for other modules.'
+package: Testing
+core: 8.x
+dependencies:
+  - simpletest
