@@ -25,7 +25,8 @@ abstract class BehatStepAbstract {
   public function __construct() {
     if (!method_exists($this, 'step')) {
       // The class don't have the step method.
-      throw new BehatException(t("The method @method don't have step method."));
+      $object_reflection = new \ReflectionClass($this);
+      throw new BehatException(t("The method @class don't have step method.", array('@class' => $object_reflection->getName())));
     }
   }
 
