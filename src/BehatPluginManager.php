@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Contains \Drupal\behat\Plugin\BehatPluginManager.
@@ -8,8 +9,9 @@ namespace Drupal\behat;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
+
 /**
- * Manages Person plugins.
+ * Manage behat steps.
  */
 class BehatPluginManager extends DefaultPluginManager {
 

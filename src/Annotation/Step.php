@@ -1,14 +1,15 @@
 <?php
+
 /**
  * @file
- * Contains Drupal\ckeditor\Annotation\CKEditorPlugin.
+ * Contains Drupal\behat\Annotation\Step.
  */
 namespace Drupal\behat\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
 
 /**
- * Define a message notify annotation object.
+ * Define a step definition annotation.
  *
  * @Annotation
  */
@@ -17,7 +18,7 @@ class Step extends Plugin {
   /**
    * @var String
    *
-   * The identifier of the plugin.
+   * The step.
    */
   public $step;
 

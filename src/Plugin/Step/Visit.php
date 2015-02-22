@@ -1,21 +1,24 @@
 <?php
 
+/**
+ * Contains Drupal\behat\Plugin\Step\Visit.
+ */
 namespace Drupal\behat\Plugin\Step;
 
 use Drupal\behat\BehatStepAbstract;
 use Drupal\behat\BehatTestsAbstract;
 
 /**
- * Redirects to a message deletion form.
+ * Redirect the user to a page.
  *
  * @Step(
- *  id = "/^I visit '(*)'$/"
+ *  id = "I visit '(.*?)'"
  * )
  */
 class Visit extends BehatStepAbstract {
 
-  public function step(BehatTestsAbstract $behat) {
-    $behat->visit('user');
+  public function step(BehatTestsAbstract $behat, array $arguments = array()) {
+    $behat->visit($arguments[1]);
   }
 
 }

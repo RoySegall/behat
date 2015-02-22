@@ -1,7 +1,0 @@
-behat.page:
-  path: '/behat/testing'
-  defaults:
-    _controller: '\Drupal\behat\BehatPages::myPage'
-    _title: 'My first page in D8'
-  requirements:
-    _permission: 'access content'

@@ -7,10 +7,12 @@ use Drupal\behat\Exception\BehatException;
 class Behat {
 
   /**
-   * Get all the notifiers plugins or a specific one.
+   * Invoking a step.
    *
+   * @param BehatTestsAbstract $behat
+   *   A behat test instance.
    * @param $step_definition
-   *  The id of the plugin.
+   *   A step definition.
    *
    * @throws BehatException
    * @return null|array
@@ -19,8 +21,8 @@ class Behat {
     $steps = \Drupal::service('plugin.manager.behat.step')->getDefinitions();
 
     foreach ($steps as $step) {
-      if (self::stepDefinitionMatch($step['id'], $step_definition)) {
-        \Drupal::service('plugin.manager.behat.step')->createInstance($step_definition)->step($behat);
+      if ($results = self::stepDefinitionMatch($step['id'], $step_definition)) {
+        \Drupal::service('plugin.manager.behat.step')->createInstance($results['step'])->step($behat, $results['arguments']);
         return TRUE;
       }
     }
@@ -28,8 +30,26 @@ class Behat {
     throw new BehatException($step_definition);
   }
 
+  /**
+   * Verify if the step definition match any plugin step.
+   *
+   * @param $step
+   *   The current step.
+   * @param $step_definition
+   *   The step definition.
+   * @return array|bool
+   */
   static public function stepDefinitionMatch($step, $step_definition) {
-    preg_match($step, $step_definition);
-    return $step == $step_definition;
+    if (!preg_match('/' . $step . '/', $step_definition, $matches)) {
+      return FALSE;
+    }
+
+    // Remove the step and keep the arguments.
+    unset($matches[0]);
+
+    return array(
+      'arguments' => $matches,
+      'step' => $step,
+    );
   }
 }

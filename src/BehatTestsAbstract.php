@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Contains Drupal\behat\BehatTestsAbstract.
+ */
 namespace Drupal\behat;
 
 use Drupal\simpletest\WebTestBase;
