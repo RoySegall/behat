@@ -2,7 +2,7 @@
 
 namespace Drupal\behat;
 
-use Drupal\behat\Exception\BehatException;
+use Drupal\behat\Exception\BehatStepException;
 
 class Behat {
 
@@ -14,7 +14,7 @@ class Behat {
    * @param $step_definition
    *   A step definition.
    *
-   * @throws BehatException
+   * @throws BehatStepException
    * @return null|array
    */
   public static function Step(BehatTestsAbstract $behat, $step_definition) {
@@ -22,12 +22,20 @@ class Behat {
 
     foreach ($steps as $step) {
       if ($results = self::stepDefinitionMatch($step['id'], $step_definition)) {
-        \Drupal::service('plugin.manager.behat.step')->createInstance($results['step'])->step($behat, $results['arguments']);
+        // Get the step instance.
+        $object = \Drupal::service('plugin.manager.behat.step')->createInstance($results['step']);
+
+        // Reflect the instance.
+        $object_reflection = new \ReflectionClass($object);
+        $reflection = new \ReflectionClass($object_reflection->getName());
+
+        // Invoke the
+        $reflection->getMethod('step')->invokeArgs($object, array($behat) + $results['arguments']);
         return TRUE;
       }
     }
 
-    throw new BehatException($step_definition);
+    throw new BehatStepException($step_definition);
   }
 
   /**

@@ -26,7 +26,7 @@ class BehatBase {
    *   The step you need to invoke i.e: "I visit 'user'"
    * @return $this
    *   The current object.
-   * @throws Exception\BehatException
+   * @throws Exception\BehatStepException
    */
   public function Step($step) {
     Behat::Step($this->Behat, $step);

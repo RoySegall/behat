@@ -5,24 +5,28 @@
  */
 
 namespace Drupal\behat;
+use Drupal\behat\Exception\BehatException;
 
 /**
- * Base class for Behat steps. All step plugin need to extend this class.
+ * Base class for Behat steps. All step plugin need to extend this class. Each
+ * class will need to implement a step method:
+ *
+ * @code
+ * public abstract function step(BehatTestsAbstract $behat);
+ * public abstract function step(BehatTestsAbstract $behat, $url);
+ * public abstract function step(BehatTestsAbstract $behat, $element, $value);
+ * @endcode
+ *
+ * Each method will get by default the $behat object. The extra arguments will
+ * be the placeholder from the step definition.
  */
 abstract class BehatStepAbstract {
 
-  /**
-   * The action each step will commit. i.e: I visit plugin will invoke
-   * $this->drupalGet().
-   *
-   * @param BehatTestsAbstract $behat
-   *   The current instance test which invoked the plugin. Will be use to invoke
-   *   simple test method.
-   * @param array $arguments
-   *   The arguments from the step.
-   *
-   * @return mixed
-   */
-  public abstract function step(BehatTestsAbstract $behat, array $arguments = array());
+  public function __construct() {
+    if (!method_exists($this, 'step')) {
+      // The class don't have the step method.
+      throw new BehatException(t("The method @method don't have step method."));
+    }
+  }
 
 }

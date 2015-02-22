@@ -17,8 +17,8 @@ use Drupal\behat\BehatTestsAbstract;
  */
 class Visit extends BehatStepAbstract {
 
-  public function step(BehatTestsAbstract $behat, array $arguments = array()) {
-    $behat->visit($arguments[1]);
+  public function step(BehatTestsAbstract $behat, $url) {
+    $behat->visit($url);
   }
 
 }
