@@ -24,12 +24,15 @@ class BehatBase {
    *
    * @param $step
    *   The step you need to invoke i.e: "I visit 'user'"
+   * @param $placeholders
+   *   Optional. Placeholder for elements from the step definition.
+   *
    * @return $this
    *   The current object.
    * @throws Exception\BehatStepException
    */
-  public function Step($step) {
-    Behat::Step($this->Behat, $step);
+  public function Step($step, $placeholders = []) {
+    Behat::Step($this->Behat, format_string($step, $placeholders));
     return $this;
   }
 }

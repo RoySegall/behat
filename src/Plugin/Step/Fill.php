@@ -10,14 +10,13 @@ use Drupal\behat\BehatTestsAbstract;
 
 /**
  * @Step(
- *  id = "I visit '(.*?)'"
+ *  id = "I fill in '(.*?)' with '(.*?)'"
  * )
  */
-class Visit extends BehatStepAbstract {
+class Fill extends BehatStepAbstract {
 
-  public function step(BehatTestsAbstract $behat, $url) {
-    $behat->setUrl($url);
-    $behat->visit($url);
+  public function step(BehatTestsAbstract $behat, $name, $value) {
+    $behat->setEdit($name, $value);
   }
 
 }
