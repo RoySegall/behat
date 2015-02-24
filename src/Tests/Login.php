@@ -17,11 +17,6 @@ use Drupal\user\Entity\User;
  */
 class Login extends BehatTestsAbstract {
 
-  /**
-   * @var User
-   */
-  public $user;
-
   public function testLogin() {
     $account = $this->drupalCreateUser();
 
