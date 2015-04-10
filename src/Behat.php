@@ -2,6 +2,9 @@
 
 namespace Drupal\behat;
 
+use Behat\Gherkin\Keywords\ArrayKeywords;
+use Behat\Gherkin\Lexer;
+use Behat\Gherkin\Parser;
 use Drupal\behat\Exception\BehatStepException;
 
 class Behat {
@@ -59,5 +62,42 @@ class Behat {
       'arguments' => $matches,
       'step' => $step,
     );
+  }
+
+  /**
+   * Get a new instance of Gherkin parser.
+   *
+   * @return Parser
+   */
+  static public function getParser() {
+    $keywords = new ArrayKeywords(array(
+      'en' => array(
+        'feature'          => 'Feature',
+        'background'       => 'Background',
+        'scenario'         => 'Scenario',
+        'scenario_outline' => 'Scenario Outline|Scenario Template',
+        'examples'         => 'Examples|Scenarios',
+        'given'            => 'Given',
+        'when'             => 'When',
+        'then'             => 'Then',
+        'and'              => 'And',
+        'but'              => 'But'
+      )
+    ));
+
+    // Allow other module to alter the parser key words.
+    \Drupal::moduleHandler()->alter('behat_parser_words', $keywords);
+
+    $lexer  = new Lexer($keywords);
+
+    return new Parser($lexer);
+  }
+
+  public static function content() {
+
+    $element = array(
+      '#markup' => 'Hello world!',
+    );
+    return $element;
   }
 }

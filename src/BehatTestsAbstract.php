@@ -82,6 +82,44 @@ class BehatTestsAbstract extends WebTestBase {
   }
 
   /**
+   * Execute a scenario from a feature file.
+   *
+   * @param $scenario
+   *   The name of the scenario file.
+   * @param $component
+   *   Name of the module/theme.
+   * @param string $type
+   *   The type of the component: module or theme. Default is module.
+   *
+   * @throws \Exception
+   */
+  public function executeScenario($scenario, $component, $type = 'module') {
+    // Get the path of the file.
+    $path = DRUPAL_ROOT . '/' . drupal_get_path($type, $component) . '/src/Features/' . $scenario;
+
+    if (!$path) {
+      throw new \Exception('The scenario is missing from the path ' . $path);
+    }
+
+    $test = file_get_contents($path);
+
+    // Initialize Behat module step manager.
+    $StepManager = new BehatBase($this);
+
+    // Get the parser of the gherkin files.
+    $parser = Behat::getParser();
+    $scenarios = $parser->parse($test)->getScenarios();
+
+    foreach ($scenarios as $scenario) {
+
+      foreach ($scenario->getSteps() as $step) {
+        // Invoke the steps.
+        $StepManager->executeStep($step->getText());
+      }
+    }
+  }
+
+  /**
    * Visiting a Drupal page.
    *
    * @param $path

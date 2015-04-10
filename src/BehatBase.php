@@ -31,7 +31,7 @@ class BehatBase {
    *   The current object.
    * @throws Exception\BehatStepException
    */
-  public function Step($step, $placeholders = []) {
+  public function executeStep($step, $placeholders = []) {
     Behat::Step($this->Behat, format_string($step, $placeholders));
     return $this;
   }

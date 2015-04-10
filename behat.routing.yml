@@ -1,0 +1,9 @@
+behat.state_system_page:
+  path: '/behat/foo'
+  defaults:
+    _controller: '\Drupal\behat\Behat::content'
+    _title: 'State editor'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'access devel information'

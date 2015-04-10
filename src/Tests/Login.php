@@ -6,9 +6,7 @@
  */
 namespace Drupal\behat\Tests;
 
-use Drupal\behat\BehatBase;
 use Drupal\behat\BehatTestsAbstract;
-use Drupal\user\Entity\User;
 
 /**
  * Simple login test.
@@ -17,14 +15,12 @@ use Drupal\user\Entity\User;
  */
 class Login extends BehatTestsAbstract {
 
-  public function testLogin() {
-    $account = $this->drupalCreateUser();
+  public function setUp() {
+    parent::setUp('behat');
+  }
 
-    $Step = new BehatBase($this);
-    $Step->Step("I fill in 'name' with '@name'", ['@name' => $account->getUsername()]);
-    $Step->Step("I fill in 'pass' with '@pass'", ['@pass' => $account->pass_raw]);
-    $Step->Step("I press 'Log in' in 'user'");
-    $Step->Step("I should see '@name'", ['@name' => $account->getUsername()]);
+  public function testLogin() {
+    $this->executeScenario('login.feature', 'behat');
   }
 
 }
