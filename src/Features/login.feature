@@ -1,8 +1,7 @@
 Feature: Testing
 
-  @api
   Scenario: I test me!
-    Given I fill in 'name' with 'admin'
-      And I fill in 'pass' with 'admin'
+    Given I fill in 'name' with '@user-name'
+      And I fill in 'pass' with '@user-pass'
      When I press 'Log in' in 'user'
-     Then I should see 'admin'
+     Then I should see '@user-name'

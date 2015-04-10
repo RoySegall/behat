@@ -2,6 +2,7 @@
 
 namespace Drupal\behat;
 
+use Behat\Behat\Console\BehatApplication;
 use Behat\Gherkin\Keywords\ArrayKeywords;
 use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Parser;
@@ -72,16 +73,16 @@ class Behat {
   static public function getParser() {
     $keywords = new ArrayKeywords(array(
       'en' => array(
-        'feature'          => 'Feature',
-        'background'       => 'Background',
-        'scenario'         => 'Scenario',
+        'feature' => 'Feature',
+        'background'  => 'Background',
+        'scenario'  => 'Scenario',
         'scenario_outline' => 'Scenario Outline|Scenario Template',
-        'examples'         => 'Examples|Scenarios',
-        'given'            => 'Given',
-        'when'             => 'When',
-        'then'             => 'Then',
-        'and'              => 'And',
-        'but'              => 'But'
+        'examples'  => 'Examples|Scenarios',
+        'given' => 'Given',
+        'when'  => 'When',
+        'then'  => 'Then',
+        'and'  => 'And',
+        'but'  => 'But'
       )
     ));
 
@@ -93,7 +94,23 @@ class Behat {
     return new Parser($lexer);
   }
 
+  /**
+   * This is a dummy method for tests of the behat module.
+   */
   public static function content() {
+    $parser = self::getParser();
+
+    foreach (glob(drupal_get_path('module', 'behat') . '/src/features/*.feature') as $feature) {
+      $test = file_get_contents($feature);
+      $scenarios = $parser->parse($test)->getScenarios();
+
+      foreach ($scenarios as $scenario) {
+        dpm($scenario);
+        foreach ($scenario->getSteps() as $step) {
+//          dpm($step);
+        }
+      }
+    }
 
     $element = array(
       '#markup' => 'Hello world!',

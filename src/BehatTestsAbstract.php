@@ -15,7 +15,7 @@ class BehatTestsAbstract extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('behat');
+  public static $modules = ['behat'];
 
   /**
    * @var array
@@ -30,6 +30,13 @@ class BehatTestsAbstract extends WebTestBase {
    * Metadata info.
    */
   protected $metadata = [];
+
+  /**
+   * @var array
+   *
+   * Holds placeholders for the scenarios.
+   */
+  protected $placeholders;
 
   /**
    * @var string
@@ -47,9 +54,29 @@ class BehatTestsAbstract extends WebTestBase {
 
   /**
    * @param string $url
+   *
+   * @return BehatTestsAbstract
    */
   public function setUrl($url) {
     $this->url = $url;
+    return $this;
+  }
+
+  /**
+   * @param $key
+   * @param $value
+   *
+   * @return BehatTestsAbstract
+   */
+  public function setMetadata($key, $value) {
+    $this->metadata[$key] = $value;
+    return $this;
+  }
+  /**
+   * @return array
+   */
+  public function getMetadata() {
+    return $this->metadata;
   }
 
   /**
@@ -62,23 +89,31 @@ class BehatTestsAbstract extends WebTestBase {
   /**
    * @param $key
    * @param $value
+   *
+   * @return BehatTestsAbstract
    */
-  public function setMetadata($key, $value) {
-    $this->metadata[$key] = $value;
+  public function setEdit($key, $value) {
+    $this->edit[$key] = $value;
+    return $this;
   }
+
   /**
+   * @param null $key
    * @return array
    */
-  public function getMetadata() {
-    return $this->metadata;
+  public function getPlaceholders($key = NULL) {
+    return $key ? $this->placeholders[$key] : $this->placeholders;
   }
 
   /**
    * @param $key
    * @param $value
+   *
+   * @return BehatTestsAbstract
    */
-  public function setEdit($key, $value) {
-    $this->edit[$key] = $value;
+  public function setPlaceholder($key, $value) {
+    $this->placeholders[$key] = $value;
+    return $this;
   }
 
   /**
@@ -95,7 +130,7 @@ class BehatTestsAbstract extends WebTestBase {
    */
   public function executeScenario($scenario, $component, $type = 'module') {
     // Get the path of the file.
-    $path = DRUPAL_ROOT . '/' . drupal_get_path($type, $component) . '/src/Features/' . $scenario;
+    $path = DRUPAL_ROOT . '/' . drupal_get_path($type, $component) . '/src/Features/' . $scenario . '.feature';
 
     if (!$path) {
       throw new \Exception('The scenario is missing from the path ' . $path);
@@ -114,7 +149,7 @@ class BehatTestsAbstract extends WebTestBase {
 
       foreach ($scenario->getSteps() as $step) {
         // Invoke the steps.
-        $StepManager->executeStep($step->getText());
+        $StepManager->executeStep($step->getText(), $this->getPlaceholders());
       }
     }
   }

@@ -20,7 +20,11 @@ class Login extends BehatTestsAbstract {
   }
 
   public function testLogin() {
-    $this->executeScenario('login.feature', 'behat');
+    $account = $this->drupalCreateUser();
+    $this
+      ->setPlaceholder('@user-name', $account->label())
+      ->setPlaceholder('@user-pass', $account->pass_raw)
+      ->executeScenario('login', 'behat');
   }
 
 }
