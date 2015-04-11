@@ -7,7 +7,6 @@
 namespace Drupal\behat\Tests;
 
 use Drupal\behat\BehatTestsAbstract;
-use Drupal\simpletest\BrowserTestBase;
 
 /**
  * Simple login test.

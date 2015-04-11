@@ -16,8 +16,16 @@ use Drupal\behat\BehatTestsAbstract;
 class Press extends BehatStepAbstract {
 
   public function step(BehatTestsAbstract $behat, $element) {
-    // Check if this is submit button.
-    $behat->sendForm($element);
+    $button = $behat->assertSession()->buttonExists($element);
+
+    if ($button->getAttribute('type') == 'submit') {
+      // This is a submit element. Call the submit form method.
+      $behat->sendForm($element);
+    }
+    else {
+      // Normal button. Press it.
+      $button->press();
+    }
   }
 
 }

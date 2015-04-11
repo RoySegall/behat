@@ -1,8 +1,8 @@
-Feature: Testing
+Feature: Login testing.
 
-  Scenario: I test me!
+  Scenario: Testing the login form.
     Given I visit 'user'
-    Given I fill in 'name' with '@user-name'
+      And I fill in 'name' with '@user-name'
       And I fill in 'pass' with '@user-pass'
      When I press 'Log in'
      Then I should see '@user-name'

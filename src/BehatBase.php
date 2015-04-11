@@ -4,6 +4,8 @@
  */
 namespace Drupal\behat;
 
+use Drupal\behat\Exception\BehatFailedStep;
+
 class BehatBase {
 
   /**
@@ -29,10 +31,17 @@ class BehatBase {
    *
    * @return $this
    *   The current object.
-   * @throws Exception\BehatStepException
+   * .
+   * @throws BehatFailedStep
    */
   public function executeStep($step, $placeholders = []) {
-    Behat::Step($this->Behat, format_string($step, $placeholders));
+    try {
+      Behat::Step($this->Behat, format_string($step, $placeholders));
+    }
+    catch (\Exception $e) {
+      throw new BehatFailedStep($e->getMessage());
+    }
+
     return $this;
   }
 }

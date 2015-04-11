@@ -7,6 +7,7 @@ namespace Drupal\behat\Plugin\Step;
 
 use Drupal\behat\BehatStepAbstract;
 use Drupal\behat\BehatTestsAbstract;
+use SebastianBergmann\Exporter\Exception;
 
 /**
  * @Step(
@@ -16,6 +17,7 @@ use Drupal\behat\BehatTestsAbstract;
 class Fill extends BehatStepAbstract {
 
   public function step(BehatTestsAbstract $behat, $name, $value) {
+    $behat->assertSession()->fieldExists($name);
     $behat->setEdit($name, $value);
   }
 

@@ -5,9 +5,7 @@
  */
 namespace Drupal\behat;
 
-use Drupal\behat\Exception\BehatFailedStep;
 use Drupal\simpletest\BrowserTestBase;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Simple login test.
@@ -45,7 +43,7 @@ class BehatTestsAbstract extends BrowserTestBase {
    *
    * Holds placeholders for the scenarios.
    */
-  protected $placeholders;
+  protected $placeholders = [];
 
   /**
    * @var string
@@ -171,6 +169,7 @@ class BehatTestsAbstract extends BrowserTestBase {
    */
   public function visit($path) {
     $this->drupalGet($path);
+    $this->assertSession()->statusCodeEquals(200);
   }
 
   /**
@@ -180,7 +179,6 @@ class BehatTestsAbstract extends BrowserTestBase {
    *   The submit button element.
    */
   public function sendForm($element) {
-    debug($this->edit);
     $this->submitForm($this->edit, $element);
   }
 

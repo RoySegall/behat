@@ -2,7 +2,6 @@
 
 namespace Drupal\behat;
 
-use Behat\Behat\Console\BehatApplication;
 use Behat\Gherkin\Keywords\ArrayKeywords;
 use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Parser;
@@ -105,7 +104,6 @@ class Behat {
       $scenarios = $parser->parse($test)->getScenarios();
 
       foreach ($scenarios as $scenario) {
-        dpm($scenario);
         foreach ($scenario->getSteps() as $step) {
 //          dpm($step);
         }
