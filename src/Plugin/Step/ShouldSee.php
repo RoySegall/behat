@@ -16,7 +16,7 @@ use Drupal\behat\BehatTestsAbstract;
 class ShouldSee extends BehatStepAbstract {
 
   public function step(BehatTestsAbstract $behat, $text) {
-    $behat->assertSession()->elementExists('xpath', format_string('//h1[.="@text"]', ['@text'=> $text]));
+    $behat->assertSession()->pageTextContains($text);
   }
 
 }

@@ -124,6 +124,18 @@ class BehatTestsAbstract extends BrowserTestBase {
   }
 
   /**
+   * Before each scenario logout the user.
+   */
+  public function beforeScenario() {
+    $this->drupalGet('user/logout');
+  }
+
+  /**
+   * After each scenario invoke actions.
+   */
+  public function afterScenario() {}
+
+  /**
    * Execute a scenario from a feature file.
    *
    * @param $scenario
@@ -153,11 +165,14 @@ class BehatTestsAbstract extends BrowserTestBase {
     $scenarios = $parser->parse($test)->getScenarios();
 
     foreach ($scenarios as $scenario) {
+      $this->beforeScenario();
 
       foreach ($scenario->getSteps() as $step) {
         // Invoke the steps.
         $StepManager->executeStep($step->getText(), $this->getPlaceholders());
       }
+
+      $this->afterScenario();
     }
   }
 
