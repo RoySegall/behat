@@ -6,9 +6,18 @@
 namespace Drupal\behat;
 
 use Drupal\behat\Exception\BehatFailedStep;
+use Drupal\simpletest\BrowserTestBase;
 use Drupal\simpletest\WebTestBase;
 
-class BehatTestsAbstract extends WebTestBase {
+/**
+ * Simple login test.
+ *
+ * @group behat
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ */
+class BehatTestsAbstract extends BrowserTestBase {
 
   /**
    * Modules to enable.
@@ -169,36 +178,10 @@ class BehatTestsAbstract extends WebTestBase {
    *
    * @param $element
    *   The submit button element.
-   * @param $url
-   *   The url fo the form.
    */
-  public function sendForm($element, $url) {
-    $this->drupalPostForm($url, $this->edit, $element);
-  }
-
-  /**
-   * Trigger xpath method.
-   *
-   * @param $xpath
-   *   The xpath string to use in the search.
-   * @param $pass
-   *   Determine if we need to display the pass message.
-   *
-   * @throws BehatFailedStep
-   * @return array
-   */
-  public function searchElement($xpath, $pass = TRUE) {
-    if (!$result = $this->xpath($xpath)) {
-      throw new BehatFailedStep(format_string('The element @xpath was not found in the page', [
-        '@xpath' => $xpath
-      ]));
-    }
-
-    if ($pass) {
-      $this->pass(format_string('The element @element is present in the page.', ['@element' => $xpath]));
-    }
-
-    return $result;
+  public function sendForm($element) {
+    debug($this->edit);
+    $this->submitForm($this->edit, $element);
   }
 
 }

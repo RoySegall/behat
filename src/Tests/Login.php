@@ -7,23 +7,23 @@
 namespace Drupal\behat\Tests;
 
 use Drupal\behat\BehatTestsAbstract;
+use Drupal\simpletest\BrowserTestBase;
 
 /**
  * Simple login test.
  *
  * @group behat
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class Login extends BehatTestsAbstract {
-
-  public function setUp() {
-    parent::setUp('behat');
-  }
 
   public function testLogin() {
     $account = $this->drupalCreateUser();
     $this
       ->setPlaceholder('@user-name', $account->label())
-      ->setPlaceholder('@user-pass', $account->pass_raw)
+      ->setPlaceholder('@user-pass', $account->passRaw)
       ->executeScenario('login', 'behat');
   }
 

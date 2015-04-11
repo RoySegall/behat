@@ -10,14 +10,14 @@ use Drupal\behat\BehatTestsAbstract;
 
 /**
  * @Step(
- *  id = "I press '(.*?)' in '(.*?)'"
+ *  id = "I press '(.*?)'"
  * )
  */
-class PressIn extends BehatStepAbstract {
+class Press extends BehatStepAbstract {
 
-  public function step(BehatTestsAbstract $behat, $element, $url) {
+  public function step(BehatTestsAbstract $behat, $element) {
     // Check if this is submit button.
-    $behat->sendForm($element, $url);
+    $behat->sendForm($element);
   }
 
 }
