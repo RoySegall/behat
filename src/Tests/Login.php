@@ -23,7 +23,12 @@ class Login extends BehatTestsAbstract {
     $this
       ->setPlaceholder('@user-name', $account->label())
       ->setPlaceholder('@user-pass', $account->passRaw)
+      ->setTag('@login-success')
       ->executeScenario('login', 'behat');
+  }
+
+  public function testLoginFailed() {
+    $this->setTag('@login-failed')->executeScenario('login', 'behat');
   }
 
 }

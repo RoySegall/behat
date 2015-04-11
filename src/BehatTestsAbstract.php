@@ -5,6 +5,7 @@
  */
 namespace Drupal\behat;
 
+use Behat\Gherkin\Node\ScenarioInterface;
 use Drupal\simpletest\BrowserTestBase;
 
 /**
@@ -46,26 +47,26 @@ class BehatTestsAbstract extends BrowserTestBase {
   protected $placeholders = [];
 
   /**
-   * @var string
+   * @var
    *
-   * The last url.
+   * Holds the tag of the running tests.
    */
-  protected $url;
+  protected $tag;
 
   /**
-   * @return string
+   * @return mixed
    */
-  public function getUrl() {
-    return $this->url;
+  public function getTag() {
+    return $this->tag;
   }
 
   /**
-   * @param string $url
+   * @param mixed $tag
    *
    * @return BehatTestsAbstract
    */
-  public function setUrl($url) {
-    $this->url = $url;
+  public function setTag($tag) {
+    $this->tag = $tag;
     return $this;
   }
 
@@ -125,15 +126,21 @@ class BehatTestsAbstract extends BrowserTestBase {
 
   /**
    * Before each scenario logout the user.
+   *
+   * @param $scenarioInterface
+   *   The scenario object.
    */
-  public function beforeScenario() {
+  public function beforeScenario(ScenarioInterface $scenarioInterface = NULL) {
     $this->drupalGet('user/logout');
   }
 
   /**
    * After each scenario invoke actions.
+   *
+   * @param $scenarioInterface
+   *   The scenario object.
    */
-  public function afterScenario() {}
+  public function afterScenario(ScenarioInterface $scenarioInterface = NULL) {}
 
   /**
    * Execute a scenario from a feature file.
@@ -165,14 +172,21 @@ class BehatTestsAbstract extends BrowserTestBase {
     $scenarios = $parser->parse($test)->getScenarios();
 
     foreach ($scenarios as $scenario) {
-      $this->beforeScenario();
+
+      if ($this->getTag() && !in_array($this->getTag(), $scenario->getTags())) {
+        // Run tests with specific tags.
+        continue;
+      }
+
+      $this->beforeScenario($scenario);
 
       foreach ($scenario->getSteps() as $step) {
+
         // Invoke the steps.
         $StepManager->executeStep($step->getText(), $this->getPlaceholders());
       }
 
-      $this->afterScenario();
+      $this->afterScenario($scenario);
     }
   }
 
