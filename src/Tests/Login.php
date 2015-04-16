@@ -28,7 +28,7 @@ class Login extends BehatTestsAbstract {
   }
 
   public function testLoginFailed() {
-    $this->setTag('@login-failed')->executeScenario('login', 'behat');
+    $this->setTag('login-failed')->executeScenario('login', 'behat');
   }
 
 }

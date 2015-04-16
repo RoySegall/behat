@@ -172,7 +172,6 @@ class BehatTestsAbstract extends BrowserTestBase {
     $scenarios = $parser->parse($test)->getScenarios();
 
     foreach ($scenarios as $scenario) {
-
       if ($this->getTag() && !in_array($this->getTag(), $scenario->getTags())) {
         // Run tests with specific tags.
         continue;
