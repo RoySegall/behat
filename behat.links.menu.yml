@@ -1,0 +1,8 @@
+behat.test_form:
+  title: Behat
+  description: 'Run behat features files.'
+  route_name: behat.test_form
+  parent: system.admin_config_development
+  weight: -6
+
+

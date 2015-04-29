@@ -9,17 +9,17 @@ namespace Drupal\behat\Annotation;
 use Drupal\Component\Annotation\Plugin;
 
 /**
- * Define a step definition annotation.
+ * Define a feature context plugin.
  *
  * @Annotation
  */
-class Step extends Plugin {
+class FeatureContext extends Plugin {
 
   /**
    * @var String
    *
-   * The step.
+   * The directory.
    */
-  public $step;
+  public $directory;
 
 }

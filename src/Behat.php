@@ -9,6 +9,27 @@ use Drupal\behat\Exception\BehatStepException;
 
 class Behat {
 
+  public static function getFeatureContexts() {
+    return \Drupal::service('plugin.manager.behat.FeatureContext')->getDefinitions();
+  }
+
+  /**
+   * Return list of all the feature files of a module.
+   *
+   * @param $name
+   *   The name of the component.
+   * @param $type
+   *   The type of the component: module or theme. Default to module.
+   * @param $dir
+   *   The directory. Default to src/features.
+   *
+   * @return array
+   *   Array of features name.
+   */
+  public static function getComponentFeatures($name, $type = 'module', $dir = 'src/Features') {
+    return glob(drupal_get_path($type, $name) . '/' . $dir . '/*.feature');
+  }
+
   /**
    * Invoking a step.
    *
@@ -20,8 +41,10 @@ class Behat {
    * @throws BehatStepException
    * @return null|array
    */
-  public static function Step(BehatTestsAbstract $behat, $step_definition) {
-    $steps = \Drupal::service('plugin.manager.behat.step')->getDefinitions();
+  public static function FeatureContext(BehatTestsAbstract $behat, $step_definition) {
+    $featureContext = \Drupal::service('plugin.manager.behat.FeatureContext')->getDefinitions();
+
+    return $featureContext;
 
     foreach ($steps as $step) {
       if ($results = self::stepDefinitionMatch($step['id'], $step_definition)) {

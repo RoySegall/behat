@@ -7,3 +7,11 @@ behat.state_system_page:
     _admin_route: TRUE
   requirements:
     _permission: 'access devel information'
+
+behat.test_form:
+  path: '/admin/config/development/behat'
+  defaults:
+    _form: '\Drupal\behat\Form\BehatTestForm'
+    _title: 'Behat'
+  requirements:
+    _permission: 'run behat tests'
