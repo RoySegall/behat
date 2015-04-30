@@ -108,32 +108,32 @@ class BehatTestForm extends FormBase {
 
     // Generate the list of tests arranged by group.
     $groups = Behat::getFeatureContexts();
-    foreach ($groups as $group => $tests) {
-      $form['tests'][$group] = array(
+    foreach ($groups as $provider => $tests) {
+      $form['tests'][$provider] = array(
         '#attributes' => array('class' => array('simpletest-group')),
       );
 
       // Make the class name safe for output on the page by replacing all
       // non-word/decimal characters with a dash (-).
-      $group_class = 'module-' . strtolower(trim(preg_replace("/[^\w\d]/", "-", $group)));
+      $group_class = 'module-' . strtolower(trim(preg_replace("/[^\w\d]/", "-", $provider)));
 
       // Override tableselect column with custom selector for this group.
       // This group-select-all checkbox is injected via JavaScript.
-      $form['tests'][$group]['select'] = array(
+      $form['tests'][$provider]['select'] = array(
         '#wrapper_attributes' => array(
           'id' => $group_class,
           'class' => array('simpletest-group-select-all'),
         ),
       );
-      $form['tests'][$group]['title'] = array(
+      $form['tests'][$provider]['title'] = array(
         // Expand/collapse image.
         '#prefix' => '<div class="simpletest-image" id="simpletest-test-group-' . $group_class . '"></div>',
-        '#markup' => '<label for="' . $group_class . '-group-select-all">' . $group . '</label>',
+        '#markup' => '<label for="' . $group_class . '-group-select-all">' . $provider . '</label>',
         '#wrapper_attributes' => array(
           'class' => array('simpletest-group-label'),
         ),
       );
-      $form['tests'][$group]['description'] = array(
+      $form['tests'][$provider]['description'] = array(
         '#markup' => '&nbsp;',
         '#wrapper_attributes' => array(
           'class' => array('simpletest-group-description'),
@@ -177,6 +177,7 @@ class BehatTestForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    dpm($form_state->getValues());
   }
 
 }
