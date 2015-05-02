@@ -155,12 +155,15 @@ class Behat {
       ->useDefaults(array('test_id'))
       ->execute();
 
-    if (empty($test_list['phpunit'])) {
-      return $test_id;
+    if (!empty($test_list['phpunit'])) {
+      putenv('TESTID=' . $test_id);
+      $phpunit_results = simpletest_run_phpunit_tests($test_id, $test_list['phpunit']);
+      simpletest_process_phpunit_results($phpunit_results);
     }
 
-    putenv('TESTID=' . $test_id);
-    $phpunit_results = simpletest_run_phpunit_tests($test_id, $test_list['phpunit']);
-    simpletest_process_phpunit_results($phpunit_results);
+    // Early return if there are no further tests to run.
+    if (empty($test_list['simpletest'])) {
+      return $test_id;
+    }
   }
 }
