@@ -31,13 +31,13 @@ class BehatTestForm extends FormBase {
 
     $parser = Behat::getParser();
 
-    $form['actions'] = array('#type' => 'actions');
-    $form['actions']['submit'] = array(
+    $form['actions'] = ['#type' => 'actions'];
+    $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Run tests'),
       '#tableselect' => TRUE,
       '#button_type' => 'primary',
-    );
+    ];
 
     // Do not needlessly re-execute a full test discovery if the user input
     // already contains an explicit list of test classes to run.
@@ -47,43 +47,43 @@ class BehatTestForm extends FormBase {
     }
 
     // JavaScript-only table filters.
-    $form['filters'] = array(
+    $form['filters'] = [
       '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('table-filter', 'js-show'),
-      ),
-    );
-    $form['filters']['text'] = array(
+      '#attributes' => [
+        'class' => ['table-filter', 'js-show'],
+      ],
+    ];
+    $form['filters']['text'] = [
       '#type' => 'search',
       '#title' => $this->t('Search'),
       '#size' => 30,
       '#placeholder' => $this->t('Enter test name…'),
-      '#attributes' => array(
-        'class' => array('table-filter-text'),
+      '#attributes' => [
+        'class' => ['table-filter-text'],
         'data-table' => '#simpletest-test-form',
         'autocomplete' => 'off',
         'title' => $this->t('Enter at least 3 characters of the test name or description to filter by.'),
-      ),
-    );
+      ],
+    ];
 
-    $form['tests'] = array(
+    $form['tests'] = [
       '#type' => 'table',
       '#id' => 'simpletest-form-table',
       '#tableselect' => TRUE,
-      '#header' => array(
-        array('data' => $this->t('Test'), 'class' => array('simpletest-test-label')),
-        array('data' => $this->t('File'), 'class' => array('simpletest-test-description')),
-      ),
+      '#header' => [
+        ['data' => $this->t('Test'), 'class' => ['simpletest-test-label']],
+        ['data' => $this->t('File'), 'class' => ['simpletest-test-description']],
+      ],
       '#empty' => $this->t('No tests to display.'),
-      '#attached' => array(
-        'library' => array(
+      '#attached' => [
+        'library' => [
           'simpletest/drupal.simpletest',
-        ),
-      ),
-    );
+        ],
+      ],
+    ];
 
     // Define the images used to expand/collapse the test groups.
-    $image_collapsed = array(
+    $image_collapsed = [
       '#theme' => 'image',
       '#uri' => 'core/misc/menu-collapsed.png',
       '#width' => '7',
@@ -91,8 +91,8 @@ class BehatTestForm extends FormBase {
       '#alt' => $this->t('Expand'),
       '#title' => $this->t('Expand'),
       '#suffix' => '<a href="#" class="simpletest-collapse">(' . $this->t('Expand') . ')</a>',
-    );
-    $image_extended = array(
+    ];
+    $image_extended = [
       '#theme' => 'image',
       '#uri' => 'core/misc/menu-expanded.png',
       '#width' => '7',
@@ -100,7 +100,7 @@ class BehatTestForm extends FormBase {
       '#alt' => $this->t('Collapse'),
       '#title' => $this->t('Collapse'),
       '#suffix' => '<a href="#" class="simpletest-collapse">(' . $this->t('Collapse') . ')</a>',
-    );
+    ];
     $form['tests']['#attached']['drupalSettings']['simpleTest']['images'] = [
       drupal_render($image_collapsed),
       drupal_render($image_extended),
@@ -109,9 +109,10 @@ class BehatTestForm extends FormBase {
     // Generate the list of tests arranged by group.
     $groups = Behat::getFeatureContexts();
     foreach ($groups as $provider => $tests) {
-      $form['tests'][$provider] = array(
-        '#attributes' => array('class' => array('simpletest-group')),
-      );
+      $this->providers[] = $tests['class'];
+      $form['tests'][$provider] = [
+        '#attributes' => ['class' => ['simpletest-group']],
+      ];
 
       // Make the class name safe for output on the page by replacing all
       // non-word/decimal characters with a dash (-).
@@ -119,54 +120,58 @@ class BehatTestForm extends FormBase {
 
       // Override tableselect column with custom selector for this group.
       // This group-select-all checkbox is injected via JavaScript.
-      $form['tests'][$provider]['select'] = array(
-        '#wrapper_attributes' => array(
+      $form['tests'][$provider]['select'] = [
+        '#wrapper_attributes' => [
           'id' => $group_class,
-          'class' => array('simpletest-group-select-all'),
-        ),
-      );
-      $form['tests'][$provider]['title'] = array(
+          'class' => ['simpletest-group-select-all'],
+        ],
+      ];
+      $form['tests'][$provider]['title'] = [
         // Expand/collapse image.
         '#prefix' => '<div class="simpletest-image" id="simpletest-test-group-' . $group_class . '"></div>',
         '#markup' => '<label for="' . $group_class . '-group-select-all">' . $provider . '</label>',
-        '#wrapper_attributes' => array(
-          'class' => array('simpletest-group-label'),
-        ),
-      );
-      $form['tests'][$provider]['description'] = array(
+        '#wrapper_attributes' => [
+          'class' => ['simpletest-group-label'],
+        ],
+      ];
+      $form['tests'][$provider]['description'] = [
         '#markup' => '&nbsp;',
-        '#wrapper_attributes' => array(
-          'class' => array('simpletest-group-description'),
-        ),
-      );
+        '#wrapper_attributes' => [
+          'class' => ['simpletest-group-description'],
+        ],
+      ];
 
       // Cycle through each test within the current group.
       $features = Behat::getComponentFeatures($tests['provider']);
       foreach ($features as $delta => $feature) {
-        $form['tests'][$delta] = array(
-          '#attributes' => array('class' => array($group_class . '-test', 'js-hide')),
-        );
 
         if (!$parsed = $parser->parse(file_get_contents($feature))) {
           continue;
         }
 
         $explode = explode('/', $feature);
-        $form['tests'][$delta]['title'] = array(
+        $feature_name = end($explode);
+
+        $class = $provider . '-' . $feature_name;
+        $form['tests'][$class] = [
+          '#attributes' => ['class' => [$group_class . '-test', 'js-hide']],
+        ];
+
+        $form['tests'][$class]['title'] = [
           '#type' => 'label',
           '#title' => SafeMarkup::checkPlain($parsed->getTitle()),
-          '#wrapper_attributes' => array(
-            'class' => array('simpletest-test-label', 'table-filter-text-source'),
-          ),
-        );
-        $form['tests'][$delta]['description'] = array(
+          '#wrapper_attributes' => [
+            'class' => ['simpletest-test-label', 'table-filter-text-source'],
+          ],
+        ];
+        $form['tests'][$class]['description'] = [
           '#prefix' => '<div class="description">',
-          '#markup' => SafeMarkup::checkPlain(end($explode)),
+          '#markup' => SafeMarkup::checkPlain($feature_name),
           '#suffix' => '</div>',
-          '#wrapper_attributes' => array(
-            'class' => array('simpletest-test-description', 'table-filter-text-source'),
-          ),
-        );
+          '#wrapper_attributes' => [
+            'class' => ['simpletest-test-description', 'table-filter-text-source'],
+          ],
+        ];
       }
     }
 
@@ -177,7 +182,41 @@ class BehatTestForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    dpm($form_state->getValues());
+    global $base_url;
+    // Test discovery does not run upon form submission.
+    simpletest_classloader_register();
+
+    // see \Drupal\simpletest\Form\SimpletestTestForm::submitForm().
+    $user_input = $form_state->getUserInput();
+    if ($form_state->isValueEmpty('tests') && !empty($user_input['tests'])) {
+      $form_state->setValue('tests', $user_input['tests']);
+    }
+
+    if ($selected_tests = $form_state->getValue('tests')) {
+      // Build a lists of tests.
+      $features = $tests_list = [];
+      foreach ($user_input['tests'] as $test) {
+        list($provider, $feature) = explode('-', $test);
+        $class = Behat::getFeatureContexts($provider)['class'];
+
+        // Save what features files we need to run for each provider.
+        $features[$class][] = str_replace('.features', '', $feature);
+
+        // Collect all the classes we need to run.
+        $tests_list['phpunit'][] = $class;
+      }
+
+      $tests_list['phpunit'] = array_unique($tests_list['phpunit']);
+
+      // Set the
+      putenv('SIMPLETEST_BASE_URL=' . $base_url);
+      putenv('FEATURES_RUN=' . serialize($features));
+      $test_id = Behat::runTests($tests_list, 'drupal');
+      $form_state->setRedirect(
+        'behat.result_form',
+        array('test_id' => $test_id)
+      );
+    }
   }
 
 }

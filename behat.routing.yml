@@ -15,3 +15,11 @@ behat.test_form:
     _title: 'Behat'
   requirements:
     _permission: 'run behat tests'
+
+behat.result_form:
+  path: '/admin/config/development/behat/results/{test_id}'
+  defaults:
+    _form: 'Drupal\behat\Form\BehatResultsForm'
+    _title: 'Test result'
+  requirements:
+    _permission: 'administer unit tests'

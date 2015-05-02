@@ -12,9 +12,12 @@ use Drupal\Behat\FeaturesTraits\BasicTrait;
  *   id = "behat",
  *   label = @Translation("Behat"),
  * )
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class FeatureContextBase extends BehatTestsAbstract {
 
-  use BasicTrait;
+//  use BasicTrait;
 
 }

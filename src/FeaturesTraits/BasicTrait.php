@@ -7,20 +7,20 @@ trait BasicTrait {
   /**
    * @Given /^I fill in '(.*?)' with '(.*?)'$/
    */
-  public function iFillInWith(BehatTestsAbstract $behat, $name, $value) {
-    $behat->assertSession()->fieldExists($name);
-    $behat->setEdit($name, $value);
+  public function iFillInWith($name, $value) {
+    $this->assertSession()->fieldExists($name);
+    $this->setEdit($name, $value);
   }
 
   /**
    * @Given /^I press '(.*?)'$/
    */
-  public function iPress(BehatTestsAbstract $behat, $element) {
-    $button = $behat->assertSession()->buttonExists($element);
+  public function iPress($element) {
+    $button = $this->assertSession()->buttonExists($element);
 
     if ($button->getAttribute('type') == 'submit') {
       // This is a submit element. Call the submit form method.
-      $behat->sendForm($element);
+      $this->sendForm($element);
     }
     else {
       // Normal button. Press it.
@@ -31,15 +31,15 @@ trait BasicTrait {
   /**
    * @Given /^I should see '(.*?)'$/
    */
-  public function iShouldSee(BehatTestsAbstract $behat, $text) {
-    $behat->assertSession()->pageTextContains($text);
+  public function iShouldSee($text) {
+    $this->assertSession()->pageTextContains($text);
   }
 
   /**
    * @Given /^I should see '(.*?)'$/
    */
-  public function iVisit(BehatTestsAbstract $behat, $url) {
-    $behat->visit($url);
+  public function iVisit($url) {
+    $this->visit($url);
   }
 
 }

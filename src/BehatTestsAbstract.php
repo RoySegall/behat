@@ -47,84 +47,6 @@ class BehatTestsAbstract extends BrowserTestBase {
   protected $placeholders = [];
 
   /**
-   * @var
-   *
-   * Holds the tag of the running tests.
-   */
-  protected $tag;
-
-  /**
-   * @return mixed
-   */
-  public function getTag() {
-    return $this->tag;
-  }
-
-  /**
-   * @param mixed $tag
-   *
-   * @return BehatTestsAbstract
-   */
-  public function setTag($tag) {
-    $this->tag = $tag;
-    return $this;
-  }
-
-  /**
-   * @param $key
-   * @param $value
-   *
-   * @return BehatTestsAbstract
-   */
-  public function setMetadata($key, $value) {
-    $this->metadata[$key] = $value;
-    return $this;
-  }
-  /**
-   * @return array
-   */
-  public function getMetadata() {
-    return $this->metadata;
-  }
-
-  /**
-   * @return array
-   */
-  public function getEdit() {
-    return $this->edit;
-  }
-
-  /**
-   * @param $key
-   * @param $value
-   *
-   * @return BehatTestsAbstract
-   */
-  public function setEdit($key, $value) {
-    $this->edit[$key] = $value;
-    return $this;
-  }
-
-  /**
-   * @param null $key
-   * @return array
-   */
-  public function getPlaceholders($key = NULL) {
-    return $key ? $this->placeholders[$key] : $this->placeholders;
-  }
-
-  /**
-   * @param $key
-   * @param $value
-   *
-   * @return BehatTestsAbstract
-   */
-  public function setPlaceholder($key, $value) {
-    $this->placeholders[$key] = $value;
-    return $this;
-  }
-
-  /**
    * Before each scenario logout the user.
    *
    * @param $scenarioInterface
@@ -132,6 +54,26 @@ class BehatTestsAbstract extends BrowserTestBase {
    */
   public function beforeScenario(ScenarioInterface $scenarioInterface = NULL) {
     $this->drupalGet('user/logout');
+  }
+
+  /**
+   * Get the test ID.
+   *
+   * @return integer
+   *   The test ID.
+   */
+  protected function getTestID() {
+    return getenv('TESTID');
+  }
+
+  /**
+   * Get the features we need to run for each provider.
+   *
+   * @return array
+   *   An array of features files we need to run during the tests.
+   */
+  protected function getFeaturesSettings() {
+    return unserialize(getenv('FEATURES_RUN'));
   }
 
   /**
@@ -208,6 +150,11 @@ class BehatTestsAbstract extends BrowserTestBase {
    */
   public function sendForm($element) {
     $this->submitForm($this->edit, $element);
+  }
+
+  public function testRunTests() {
+    debug(debug_backtrace());
+    $this->assertTrue(true, 'foo');
   }
 
 }

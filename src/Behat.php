@@ -6,11 +6,13 @@ use Behat\Gherkin\Keywords\ArrayKeywords;
 use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Parser;
 use Drupal\behat\Exception\BehatStepException;
+use Drupal\simpletest\TestDiscovery;
 
 class Behat {
 
-  public static function getFeatureContexts() {
-    return \Drupal::service('plugin.manager.behat.FeatureContext')->getDefinitions();
+  public static function getFeatureContexts($provider = NULL) {
+    $providers = \Drupal::service('plugin.manager.behat.FeatureContext');
+    return $provider ? $providers->getDefinition($provider) : $providers->getDefinitions();
   }
 
   /**
@@ -137,5 +139,28 @@ class Behat {
       '#markup' => 'Hello world!',
     );
     return $element;
+  }
+
+  /**
+   * Run a list of tests. The function simpletest_run_tests() run the tests but
+   * not passing the test id variable through the environment variable.
+   *
+   * Since we need to run only PHPUnit tests we can set the test ID to the
+   * environment variable and run the behat tests.
+   *
+   * @see simpletest_run_tests().
+   */
+  public static function runTests($test_list) {
+    $test_id = db_insert('simpletest_test_id')
+      ->useDefaults(array('test_id'))
+      ->execute();
+
+    if (empty($test_list['phpunit'])) {
+      return $test_id;
+    }
+
+    putenv('TESTID=' . $test_id);
+    $phpunit_results = simpletest_run_phpunit_tests($test_id, $test_list['phpunit']);
+    simpletest_process_phpunit_results($phpunit_results);
   }
 }
