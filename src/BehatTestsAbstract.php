@@ -6,6 +6,7 @@
 namespace Drupal\behat;
 
 use Behat\Gherkin\Node\ScenarioInterface;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Drupal\simpletest\BrowserTestBase;
 
 /**
@@ -31,13 +32,6 @@ class BehatTestsAbstract extends BrowserTestBase {
    * The edit elements for forms.
    */
   protected $edit = [];
-
-  /**
-   * @var array
-   *
-   * Metadata info.
-   */
-  protected $metadata = [];
 
   /**
    * @var array
@@ -69,11 +63,42 @@ class BehatTestsAbstract extends BrowserTestBase {
   /**
    * Get the features we need to run for each provider.
    *
+   * @param $name
+   *   The name of the class namespace. i.e:
+   *   Drupal\behat\Plugin\FeatureContext\FeatureContextBase
+   *
    * @return array
    *   An array of features files we need to run during the tests.
    */
-  protected function getFeaturesSettings() {
-    return unserialize(getenv('FEATURES_RUN'));
+  protected function getFeaturesSettings($name = NULL) {
+    $features = unserialize(getenv('FEATURES_RUN'));
+
+    if ($name && !empty($features[$name])) {
+      return $features[$name];
+    }
+
+    return $features;
+  }
+
+  /**
+   * Get the path for the FeatureContext plugin path.
+   *
+   * @param $name
+   *   The name of the class namespace. i.e:
+   *   Drupal\behat\Plugin\FeatureContext\FeatureContextBase
+   *
+   * @return Array|String
+   *   Array or a single path of FeatureContext plugin and their features files
+   *   path.
+   */
+  protected function getProvidersPath($name = NULL) {
+    $providers = unserialize(getenv('FEATURES_PROVIDERS'));
+
+    if ($name && !empty($providers[$name])) {
+      return $providers[$name];
+    }
+
+    return $providers;
   }
 
   /**
@@ -85,46 +110,29 @@ class BehatTestsAbstract extends BrowserTestBase {
   public function afterScenario(ScenarioInterface $scenarioInterface = NULL) {}
 
   /**
-   * Execute a scenario from a feature file.
+   * Execute a feature file.
    *
-   * @param $scenario
-   *   The name of the scenario file.
-   * @param $component
-   *   Name of the module/theme.
-   * @param string $type
-   *   The type of the component: module or theme. Default is module.
+   * @param $path
+   *   The path for the feature file.
    *
    * @throws \Exception
    */
-  public function executeScenario($scenario, $component, $type = 'module') {
-    // Get the path of the file.
-    $path = DRUPAL_ROOT . '/' . drupal_get_path($type, $component) . '/src/Features/' . $scenario . '.feature';
-
-    if (!$path) {
+  public function executeFeature($path) {
+    if (!file_exists($path)) {
       throw new \Exception('The scenario is missing from the path ' . $path);
     }
 
     $test = file_get_contents($path);
-
-    // Initialize Behat module step manager.
-    $StepManager = new BehatBase($this);
 
     // Get the parser of the gherkin files.
     $parser = Behat::getParser();
     $scenarios = $parser->parse($test)->getScenarios();
 
     foreach ($scenarios as $scenario) {
-      if ($this->getTag() && !in_array($this->getTag(), $scenario->getTags())) {
-        // Run tests with specific tags.
-        continue;
-      }
-
       $this->beforeScenario($scenario);
 
       foreach ($scenario->getSteps() as $step) {
-
-        // Invoke the steps.
-        $StepManager->executeStep($step->getText(), $this->getPlaceholders());
+        debug($step->getText());
       }
 
       $this->afterScenario($scenario);
@@ -132,31 +140,18 @@ class BehatTestsAbstract extends BrowserTestBase {
   }
 
   /**
-   * Visiting a Drupal page.
-   *
-   * @param $path
-   *   The internal path.
-   */
-  public function visit($path) {
-    $this->drupalGet($path);
-    $this->assertSession()->statusCodeEquals(200);
-  }
-
-  /**
-   * Sending the form.
-   *
-   * @param $element
-   *   The submit button element.
-   */
-  public function sendForm($element) {
-    $this->submitForm($this->edit, $element);
-  }
-
-  /**
    * This method will run all the tests in the current request.
    */
   public function testRunTests() {
-    debug(get_object_vars($this));
+    $reflection = new \ReflectionClass($this);
+    $name = $reflection->getName();
+
+    // Get the base path of the features files.
+    $base_path = $this->getProvidersPath($name);
+
+    foreach ($this->getFeaturesSettings($name) as $feature) {
+      $this->executeFeature($base_path . $feature);
+    }
   }
 
 }

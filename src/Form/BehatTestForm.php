@@ -194,13 +194,17 @@ class BehatTestForm extends FormBase {
 
     if ($selected_tests = $form_state->getValue('tests')) {
       // Build a lists of tests.
-      $features = $tests_list = [];
+      $features = $tests_list = $providers = [];
       foreach ($user_input['tests'] as $test) {
         list($provider, $feature) = explode('-', $test);
         $class = Behat::getFeatureContexts($provider)['class'];
 
         // Save what features files we need to run for each provider.
         $features[$class][] = str_replace('.features', '', $feature);
+
+        // Store the feature context and the defining providers.
+        // todo: Consider themes and features files location defined by provider.
+        $providers[$class] = DRUPAL_ROOT . '/' . drupal_get_path('module', $provider) . '/src/Features/';
 
         // Collect all the classes we need to run.
         $tests_list['phpunit'][] = $class;
@@ -211,6 +215,7 @@ class BehatTestForm extends FormBase {
       // Set the
       putenv('SIMPLETEST_BASE_URL=' . $base_url);
       putenv('FEATURES_RUN=' . serialize($features));
+      putenv('FEATURES_PROVIDERS=' . serialize($providers));
       $test_id = Behat::runTests($tests_list, 'drupal');
       $form_state->setRedirect(
         'behat.result_form',
