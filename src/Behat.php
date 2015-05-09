@@ -5,8 +5,13 @@ namespace Drupal\behat;
 use Behat\Gherkin\Keywords\ArrayKeywords;
 use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Parser;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Drupal\behat\Exception\BehatStepException;
-use Drupal\simpletest\TestDiscovery;
+use Drupal\behat\FeaturesTraits\BasicTrait;
+
+class foo {
+  use BasicTrait;
+}
 
 class Behat {
 
@@ -122,17 +127,16 @@ class Behat {
    * This is a dummy method for tests of the behat module.
    */
   public static function content() {
-    $parser = self::getParser();
+    $foo = new foo;
 
-    foreach (glob(drupal_get_path('module', 'behat') . '/src/features/*.feature') as $feature) {
-      $test = file_get_contents($feature);
-      $scenarios = $parser->parse($test)->getScenarios();
+    $step_definition = "I visit 'foo'";
 
-      foreach ($scenarios as $scenario) {
-        foreach ($scenario->getSteps() as $step) {
-//          dpm($step);
-        }
-      }
+    $reflection = new \ReflectionObject($foo);
+    foreach ($reflection->getMethods() as $method) {
+      $step = $method->getDocComment();
+      $description = '/' . trim(str_replace(array("\n", '*', '/'), '', $method->getDocComment())) . '/';
+      $results = self::stepDefinitionMatch($description, $step_definition);
+      dpm($results);
     }
 
     $element = array(

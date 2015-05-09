@@ -5,7 +5,7 @@ namespace Drupal\behat\FeaturesTraits;
 trait BasicTrait {
 
   /**
-   * @Given /^I fill in '(.*?)' with '(.*?)'$/
+   * /^I fill in '(.*?)' with '(.*?)'$/
    */
   public function iFillInWith($name, $value) {
     $this->assertSession()->fieldExists($name);
@@ -13,7 +13,7 @@ trait BasicTrait {
   }
 
   /**
-   * @Given /^I press '(.*?)'$/
+   * /^I press '(.*?)'$/
    */
   public function iPress($element) {
     $button = $this->assertSession()->buttonExists($element);
@@ -29,14 +29,14 @@ trait BasicTrait {
   }
 
   /**
-   * @Given /^I should see '(.*?)'$/
+   * /^I should see '(.*?)'$/
    */
   public function iShouldSee($text) {
     $this->assertSession()->pageTextContains($text);
   }
 
   /**
-   * @Given /^I should see '(.*?)'$/
+   * /^I visit '(.*?)'$/
    */
   public function iVisit($url) {
     $this->visit($url);
