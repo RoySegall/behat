@@ -152,9 +152,11 @@ class BehatTestsAbstract extends BrowserTestBase {
     $this->submitForm($this->edit, $element);
   }
 
+  /**
+   * This method will run all the tests in the current request.
+   */
   public function testRunTests() {
-    debug(debug_backtrace());
-    $this->assertTrue(true, 'foo');
+    debug(get_object_vars($this));
   }
 
 }

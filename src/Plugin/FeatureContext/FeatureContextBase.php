@@ -5,7 +5,7 @@
  */
 namespace Drupal\behat\Plugin\FeatureContext;
 use Drupal\behat\BehatTestsAbstract;
-use Drupal\Behat\FeaturesTraits\BasicTrait;
+use Drupal\behat\FeaturesTraits\BasicTrait;
 
 /**
  * @FeatureContext(
@@ -18,6 +18,5 @@ use Drupal\Behat\FeaturesTraits\BasicTrait;
  */
 class FeatureContextBase extends BehatTestsAbstract {
 
-//  use BasicTrait;
-
+  use BasicTrait;
 }

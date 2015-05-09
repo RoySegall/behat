@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Behat\FeaturesTraits;
+namespace Drupal\behat\FeaturesTraits;
 
 trait BasicTrait {
 
