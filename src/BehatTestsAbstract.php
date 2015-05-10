@@ -7,6 +7,7 @@ namespace Drupal\behat;
 
 use Behat\Gherkin\Node\ScenarioInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Drupal\behat\Exception\BehatStepException;
 use Drupal\simpletest\BrowserTestBase;
 
 /**
@@ -132,7 +133,7 @@ class BehatTestsAbstract extends BrowserTestBase {
       $this->beforeScenario($scenario);
 
       foreach ($scenario->getSteps() as $step) {
-        debug($step->getText());
+        $this->executeStep($step->getText());
       }
 
       $this->afterScenario($scenario);
@@ -151,6 +152,33 @@ class BehatTestsAbstract extends BrowserTestBase {
 
     foreach ($this->getFeaturesSettings($name) as $feature) {
       $this->executeFeature($base_path . $feature);
+    }
+  }
+
+  /**
+   * Find in the current instance a method which match the step definition.
+   *
+   * @param $step_definition
+   *   The step definition.
+   *
+   * @throws BehatStepException
+   */
+  protected function executeStep($step_definition) {
+    $reflection = new \ReflectionObject($this);
+    foreach ($reflection->getMethods() as $method) {
+      if (!$step = Behat::getBehatStepDefinition($method->getDocComment())) {
+        continue;
+      }
+
+      if ($results = Behat::stepDefinitionMatch($step, $step_definition)) {
+        // Reflect the instance.
+        $object_reflection = new \ReflectionClass($this);
+        $reflection = new \ReflectionClass($object_reflection->getName());
+
+        // Invoke the method.
+        $reflection->getMethod($method->getName())->invokeArgs($this, $results['arguments']);
+      }
+//      throw new BehatStepException($step_definition);
     }
   }
 

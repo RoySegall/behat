@@ -127,16 +127,10 @@ class Behat {
    * This is a dummy method for tests of the behat module.
    */
   public static function content() {
-    $foo = new foo;
+    $object = new foo;
 
-    $step_definition = 'I visit "f"';
+    $step_definition = 'I visit "foo"';
 
-    $reflection = new \ReflectionObject($foo);
-    foreach ($reflection->getMethods() as $method) {
-      $doc = self::getBehatSyntax($method->getDocComment());
-      $results = self::stepDefinitionMatch($doc, $step_definition);
-      dpm($results);
-    }
 
     $element = array(
       '#markup' => 'Hello world!',
@@ -144,8 +138,21 @@ class Behat {
     return $element;
   }
 
-  public static function getBehatSyntax($syntax) {
-    $start = strpos($syntax, '@Given ');
+  /**
+   * Find the the step definition from the annotation.
+   *
+   * @param $syntax
+   *   The annotation of the method.
+   *
+   * @return string
+   *   The step definition.
+   */
+  public static function getBehatStepDefinition($syntax) {
+
+    if (!$start = strpos($syntax, '@Given ')) {
+      return;
+    }
+
     $explode = explode("\n", substr($syntax, $start + strlen('@Given ')));
     return $explode[0];
   }

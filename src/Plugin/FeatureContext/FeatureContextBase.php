@@ -20,7 +20,4 @@ class FeatureContextBase extends BehatTestsAbstract {
 
   use BasicTrait;
 
-  public function testRunTests() {
-    parent::testRunTests();
-  }
 }
