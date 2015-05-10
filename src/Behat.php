@@ -81,7 +81,7 @@ class Behat {
    * @return array|bool
    */
   static public function stepDefinitionMatch($step, $step_definition) {
-    if (!preg_match('/' . $step . '/', $step_definition, $matches)) {
+    if (!preg_match($step, $step_definition, $matches)) {
       return FALSE;
     }
 
@@ -129,13 +129,12 @@ class Behat {
   public static function content() {
     $foo = new foo;
 
-    $step_definition = "I visit 'foo'";
+    $step_definition = 'I visit "f"';
 
     $reflection = new \ReflectionObject($foo);
     foreach ($reflection->getMethods() as $method) {
-      $step = $method->getDocComment();
-      $description = '/' . trim(str_replace(array("\n", '*', '/'), '', $method->getDocComment())) . '/';
-      $results = self::stepDefinitionMatch($description, $step_definition);
+      $doc = self::getBehatSyntax($method->getDocComment());
+      $results = self::stepDefinitionMatch($doc, $step_definition);
       dpm($results);
     }
 
@@ -143,6 +142,12 @@ class Behat {
       '#markup' => 'Hello world!',
     );
     return $element;
+  }
+
+  public static function getBehatSyntax($syntax) {
+    $start = strpos($syntax, '@Given ');
+    $explode = explode("\n", substr($syntax, $start + strlen('@Given ')));
+    return $explode[0];
   }
 
   /**
