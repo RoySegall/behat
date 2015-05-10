@@ -49,6 +49,11 @@ class BehatTestsAbstract extends BrowserTestBase {
    *   The scenario object.
    */
   public function beforeScenario(ScenarioInterface $scenarioInterface = NULL) {
+    // todo: re-think if this is needed.
+    // $this->prepareEnvironment();
+    // $this->installDrupal();
+    // $this->initMink();
+
     $this->drupalGet('user/logout');
   }
 
@@ -109,7 +114,10 @@ class BehatTestsAbstract extends BrowserTestBase {
    * @param $scenarioInterface
    *   The scenario object.
    */
-  public function afterScenario(ScenarioInterface $scenarioInterface = NULL) {}
+  public function afterScenario(ScenarioInterface $scenarioInterface = NULL) {
+    // todo: re-think if this needed.
+    // $this->tearDown();
+  }
 
   /**
    * Execute a feature file.
@@ -140,7 +148,6 @@ class BehatTestsAbstract extends BrowserTestBase {
         catch (\Exception $e) {
           throw new \Exception($e->getMessage());
         }
-
       }
 
       $this->afterScenario($scenario);
