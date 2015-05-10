@@ -20,7 +20,7 @@ trait BasicTrait {
 
     if ($button->getAttribute('type') == 'submit') {
       // This is a submit element. Call the submit form method.
-      $this->sendForm($element);
+      $this->submitForm($this->edit, $element);
     }
     else {
       // Normal button. Press it.

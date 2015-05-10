@@ -7,6 +7,7 @@ namespace Drupal\behat;
 
 use Behat\Gherkin\Node\ScenarioInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Drupal\behat\Exception\BehatFailedStep;
 use Drupal\behat\Exception\BehatStepException;
 use Drupal\simpletest\BrowserTestBase;
 
@@ -133,7 +134,13 @@ class BehatTestsAbstract extends BrowserTestBase {
       $this->beforeScenario($scenario);
 
       foreach ($scenario->getSteps() as $step) {
-        $this->executeStep($step->getText());
+        try {
+          $this->executeStep(format_string($step->getText(), $this->placeholders));
+        }
+        catch (\Exception $e) {
+          throw new \Exception($e->getMessage());
+        }
+
       }
 
       $this->afterScenario($scenario);
@@ -166,6 +173,7 @@ class BehatTestsAbstract extends BrowserTestBase {
   protected function executeStep($step_definition) {
     $reflection = new \ReflectionObject($this);
     foreach ($reflection->getMethods() as $method) {
+
       if (!$step = Behat::getBehatStepDefinition($method->getDocComment())) {
         continue;
       }
@@ -178,7 +186,6 @@ class BehatTestsAbstract extends BrowserTestBase {
         // Invoke the method.
         $reflection->getMethod($method->getName())->invokeArgs($this, $results['arguments']);
       }
-//      throw new BehatStepException($step_definition);
     }
   }
 

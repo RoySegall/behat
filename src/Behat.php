@@ -5,13 +5,7 @@ namespace Drupal\behat;
 use Behat\Gherkin\Keywords\ArrayKeywords;
 use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Parser;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Drupal\behat\Exception\BehatStepException;
-use Drupal\behat\FeaturesTraits\BasicTrait;
-
-class foo {
-  use BasicTrait;
-}
 
 class Behat {
 
@@ -52,23 +46,6 @@ class Behat {
     $featureContext = \Drupal::service('plugin.manager.behat.FeatureContext')->getDefinitions();
 
     return $featureContext;
-
-    foreach ($steps as $step) {
-      if ($results = self::stepDefinitionMatch($step['id'], $step_definition)) {
-        // Get the step instance.
-        $object = \Drupal::service('plugin.manager.behat.step')->createInstance($results['step']);
-
-        // Reflect the instance.
-        $object_reflection = new \ReflectionClass($object);
-        $reflection = new \ReflectionClass($object_reflection->getName());
-
-        // Invoke the
-        $reflection->getMethod('step')->invokeArgs($object, array($behat) + $results['arguments']);
-        return TRUE;
-      }
-    }
-
-    throw new BehatStepException($step_definition);
   }
 
   /**
@@ -127,11 +104,6 @@ class Behat {
    * This is a dummy method for tests of the behat module.
    */
   public static function content() {
-    $object = new foo;
-
-    $step_definition = 'I visit "foo"';
-
-
     $element = array(
       '#markup' => 'Hello world!',
     );

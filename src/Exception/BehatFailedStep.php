@@ -5,7 +5,6 @@
  */
 namespace Drupal\behat\Exception;
 
-
 class BehatFailedStep extends \Exception {} {
 
 } 
