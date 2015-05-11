@@ -6,10 +6,11 @@
 namespace Drupal\behat;
 
 use Behat\Gherkin\Node\ScenarioInterface;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Drupal\behat\Exception\BehatFailedStep;
 use Drupal\behat\Exception\BehatStepException;
 use Drupal\simpletest\BrowserTestBase;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Dumper;
+use Symfony\Component\Yaml\Parser;
 
 /**
  * Simple login test.
@@ -41,6 +42,41 @@ class BehatTestsAbstract extends BrowserTestBase {
    * Holds placeholders for the scenarios.
    */
   protected $placeholders = [];
+
+  /**
+   * @var \Symfony\Component\Filesystem\Filesystem
+   *
+   * Symfony file system object.
+   */
+  protected $fileSystem;
+
+  /**
+   * @var String
+   *
+   * The yml file path.
+   */
+  protected $ymlPath;
+
+  /**
+   * Get the yml file content.
+   *
+   * @return mixed
+   *   The yml content.
+   */
+  public function getYmlFileContent() {
+    $parser = new Parser();
+    return $parser->parse(file_get_contents($this->ymlPath));
+  }
+
+  /**
+   * Write the content to the file path.
+   *
+   * @param $content
+   */
+  public function writeYmlFile($content) {
+    $dumper = new Dumper();
+    file_put_contents($this->ymlPath, $dumper->dump($content));
+  }
 
   /**
    * Before each scenario logout the user.
@@ -144,8 +180,18 @@ class BehatTestsAbstract extends BrowserTestBase {
       foreach ($scenario->getSteps() as $step) {
         try {
           $this->executeStep(format_string($step->getText(), $this->placeholders));
+
+          // Log the step the file.
+          $content = $this->getYmlFileContent();
+          $content[$scenario->getTitle()][] = [
+            'step' => $step->getText(),
+            'status' => 'pass',
+            'line' => $scenario->getLine(),
+          ];
+          $this->writeYmlFile($content);
         }
         catch (\Exception $e) {
+          // todo: add here failures log.
           throw new \Exception($e->getMessage());
         }
       }
@@ -158,6 +204,23 @@ class BehatTestsAbstract extends BrowserTestBase {
    * This method will run all the tests in the current request.
    */
   public function testRunTests() {
+    $this->fileSystem = new FileSystem();
+
+    $testid = $this->getTestID();
+
+    // Create the folder of the behat in case it dosen't exists.
+    // todo: move this to other place this is just temp location.
+    $behat_path = drupal_get_path('module', 'behat') . '/results';
+    $this->ymlPath = $behat_path . '/behat-' . $testid . '.yml';
+
+    if (!$this->fileSystem->exists($behat_path)) {
+      $this->fileSystem->mkdir($behat_path);
+    }
+
+    if (!$this->fileSystem->exists($this->ymlPath)) {
+      $this->fileSystem->touch($this->ymlPath);
+    }
+
     $reflection = new \ReflectionClass($this);
     $name = $reflection->getName();
 

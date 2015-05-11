@@ -17,6 +17,7 @@ use Drupal\simpletest\Form\SimpletestTestForm;
 use Drupal\simpletest\TestDiscovery;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Yaml\Parser;
 
 /**
  * Test results form for $test_id.
@@ -50,7 +51,9 @@ class BehatResultsForm extends SimpletestResultsForm {
 
     // Load all classes and include CSS.
     $form['#attached']['library'][] = 'simpletest/drupal.simpletest';
+
     // Add the results form.
+    $form['test_id'] = $test_id;
     $filter = static::addResultForm($form, $results, $this->getStringTranslation());
 
     // Actions.
@@ -161,6 +164,8 @@ class BehatResultsForm extends SimpletestResultsForm {
    * @see run-tests.sh
    */
   public static function addResultForm(array &$form, array $results) {
+    $id = $form['test_id'];
+
     // Transform the test results to be grouped by test class.
     $test_results = array();
     foreach ($results as $result) {
@@ -196,50 +201,46 @@ class BehatResultsForm extends SimpletestResultsForm {
 
     \Drupal::service('test_discovery')->registerTestNamespaces();
 
+    $yml_path = drupal_get_path('module', 'behat') . '/results/behat-' . $id . '.yml';
+
+    $parser = new Parser();
+    $logs = $parser->parse(file_get_contents($yml_path));
+
     // Cycle through each test group.
     $header = array(
       'Message',
-      'Group',
-      'Filename',
-      'Line',
-      'Function',
       array('colspan' => 2, 'data' => 'Status')
     );
     $form['result']['results'] = array();
-    foreach ($test_results as $group => $assertions) {
+    foreach ($logs as $scenario => $assertions) {
       // Create group details with summary information.
-//      $info = TestDiscovery::getTestInfo($group);
-      $form['result']['results'][$group] = array(
+      $form['result']['results'][$scenario] = array(
         '#type' => 'details',
-        '#title' => 'foo',
+        '#title' => $scenario,
         '#open' => TRUE,
         '#description' => 'voo',
       );
-      $form['result']['results'][$group]['summary'] = $summary;
-      $group_summary =& $form['result']['results'][$group]['summary'];
+      $form['result']['results'][$scenario]['summary'] = $summary;
+      $group_summary =& $form['result']['results'][$scenario]['summary'];
 
       // Create table of assertions for the group.
       $rows = array();
       foreach ($assertions as $assertion) {
         $row = array();
         // Assertion messages are in code, so we assume they are safe.
-        $row[] = SafeMarkup::set($assertion->message);
-        $row[] = $assertion->message_group;
-        $row[] = \Drupal::service('file_system')->basename(($assertion->file));
-        $row[] = $assertion->line;
-        $row[] = $assertion->function;
-        $row[] = $image_status_map[$assertion->status];
+        $row[] = SafeMarkup::set($assertion['step']);
+        $row[] = $image_status_map[$assertion['status']];
 
-        $class = 'simpletest-' . $assertion->status;
+        $class = 'simpletest-' . $assertion['status'];
         if ($assertion->message_group == 'Debug') {
           $class = 'simpletest-debug';
         }
         $rows[] = array('data' => $row, 'class' => array($class));
 
-        $group_summary['#' . $assertion->status]++;
-        $form['result']['summary']['#' . $assertion->status]++;
+        $group_summary['#' . $assertion['status']]++;
+        $form['result']['summary']['#' . $assertion['status']]++;
       }
-      $form['result']['results'][$group]['table'] = array(
+      $form['result']['results'][$scenario]['table'] = array(
         '#type' => 'table',
         '#header' => $header,
         '#rows' => $rows,
@@ -247,10 +248,10 @@ class BehatResultsForm extends SimpletestResultsForm {
 
       // Set summary information.
       $group_summary['#ok'] = $group_summary['#fail'] + $group_summary['#exception'] == 0;
-      $form['result']['results'][$group]['#open'] = !$group_summary['#ok'];
+      $form['result']['results'][$scenario]['#open'] = !$group_summary['#ok'];
 
       // Store test group (class) as for use in filter.
-      $filter[$group_summary['#ok'] ? 'pass' : 'fail'][] = $group;
+      $filter[$group_summary['#ok'] ? 'pass' : 'fail'][] = $scenario;
     }
 
     // Overall summary status.
