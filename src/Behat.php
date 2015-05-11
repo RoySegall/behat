@@ -6,6 +6,7 @@ use Behat\Gherkin\Keywords\ArrayKeywords;
 use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Parser;
 use Drupal\behat\Exception\BehatStepException;
+use Drupal\simpletest\TestBase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Dumper;
 
@@ -106,31 +107,6 @@ class Behat {
    * This is a dummy method for tests of the behat module.
    */
   public static function content() {
-    $fs = new Filesystem();
-
-    $behat_path = \Drupal::service('file_system')->realpath('public://behat');
-    $yml_path = $behat_path . '/behat-1.yml';
-
-    if (!$fs->exists($behat_path)) {
-      $fs->mkdir($behat_path);
-    }
-
-    if (!$fs->exists($yml_path)) {
-      $fs->touch($yml_path);
-    }
-
-    $array = array(
-      'foo' => 'bar',
-      'bar' => array('foo' => 'bar', 'bar' => 'baz'),
-    );
-
-    $dumper = new Dumper();
-
-    $yaml = $dumper->dump($array);
-    dpm($fs);
-
-    file_put_contents($yml_path, $yaml);
-
     $element = array(
       '#markup' => 'Hello world!',
     );

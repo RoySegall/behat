@@ -186,12 +186,17 @@ class BehatTestsAbstract extends BrowserTestBase {
           $content[$scenario->getTitle()][] = [
             'step' => $step->getText(),
             'status' => 'pass',
-            'line' => $scenario->getLine(),
           ];
           $this->writeYmlFile($content);
         }
         catch (\Exception $e) {
-          // todo: add here failures log.
+          // Log the step the file.
+          $content = $this->getYmlFileContent();
+          $content[$scenario->getTitle()][] = [
+            'step' => $step->getText() . "<br />" . $e->getMessage(),
+            'status' => 'fail',
+          ];
+          $this->writeYmlFile($content);
           throw new \Exception($e->getMessage());
         }
       }
@@ -208,8 +213,8 @@ class BehatTestsAbstract extends BrowserTestBase {
 
     $testid = $this->getTestID();
 
-    // Create the folder of the behat in case it dosen't exists.
-    // todo: move this to other place this is just temp location.
+    // Create the folder of the behat in case it doesn't exists. When displaying
+    // the results we will remove the file for the test.
     $behat_path = drupal_get_path('module', 'behat') . '/results';
     $this->ymlPath = $behat_path . '/behat-' . $testid . '.yml';
 

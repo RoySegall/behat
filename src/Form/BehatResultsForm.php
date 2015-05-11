@@ -8,14 +8,11 @@
 namespace Drupal\behat\Form;
 
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\simpletest\Form\SimpletestResultsForm;
-use Drupal\simpletest\Form\SimpletestTestForm;
-use Drupal\simpletest\TestDiscovery;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Yaml\Parser;
 
@@ -44,7 +41,9 @@ class BehatResultsForm extends SimpletestResultsForm {
     // Make sure there are test results to display and a re-run is not being
     // performed.
     $results = array();
-    if (is_numeric($test_id) && !$results = $this->getResults($test_id)) {
+    $yml_path = drupal_get_path('module', 'behat') . '/results/behat-' . $test_id . '.yml';
+
+    if (is_numeric($test_id) && !file_exists($yml_path)) {
       drupal_set_message($this->t('No test results to display.'), 'error');
       return new RedirectResponse($this->url('behat.test_form', array(), array('absolute' => TRUE)));
     }
@@ -97,9 +96,10 @@ class BehatResultsForm extends SimpletestResultsForm {
       '#url' => Url::fromRoute('behat.test_form'),
     );
 
-//    if (is_numeric($test_id)) {
-//      simpletest_clean_results_table($test_id);
-//    }
+    if (is_numeric($test_id)) {
+      $fileSystem = new Filesystem();
+      $fileSystem->remove([drupal_get_path('module', 'behat') . '/results/behat-' . $test_id . '.yml']);
+    }
 
     return $form;
   }
