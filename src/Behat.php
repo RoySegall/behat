@@ -6,9 +6,6 @@ use Behat\Gherkin\Keywords\ArrayKeywords;
 use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Parser;
 use Drupal\behat\Exception\BehatStepException;
-use Drupal\simpletest\TestBase;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Dumper;
 
 class Behat {
 
@@ -157,4 +154,5 @@ class Behat {
       return $test_id;
     }
   }
+
 }

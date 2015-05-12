@@ -20,6 +20,6 @@ class FeatureContext extends Plugin {
    *
    * The directory.
    */
-  public $directory;
+  public $directory = 'a';
 
 }
