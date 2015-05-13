@@ -7,6 +7,9 @@
  */
 namespace Drupal\behat;
 
+use \Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Parser;
+
 /**
  * Helper methods for the drush integration.
  */
@@ -67,8 +70,24 @@ class BehatDrushHelper {
    *   The test ID.
    */
   public static function DisplaySearchResults($test_id) {
+    $file = new FileSystem();
 
-    throw new Exception\BehatException('Roy is to Awesome! the test could not handle it.');
+    $yml_path = drupal_get_path('module', 'behat') . '/results/behat-' . $test_id . '.yml';
+
+    $parser = new Parser();
+    $logs = $parser->parse(file_get_contents($yml_path));
+
+    foreach ($logs as $feature => $steps) {
+      drush_log($feature, 'success');
+      foreach ($steps as $step) {
+        if ($step['status'] == 'pass') {
+          drush_log($step['step'], 'success');
+        }
+        else {
+          drush_log(format_string('The tests has failed due to: !error',['!error' => $step['step']]), 'error');
+          exit(1);
+        }
+      }
+    }
   }
-
 }
