@@ -64,6 +64,33 @@ class BehatDrushHelper {
   }
 
   /**
+   * Display a cool log with colors and indentation.
+   *
+   * @param $text
+   *   The log text.
+   * @param $color
+   *   The color of the log: blue, green, red, yellow or white. Default to
+   *   white.
+   * @param int $indent
+   *   Number of indentation for the text.
+   */
+  public static function coolLog($text, $color = 'white', $indent = 0) {
+    $colors = [
+      'blue' => 94,
+      'green' => 92,
+      'red' => 91,
+      'yellow' => 93,
+      'white' => 37,
+    ];
+
+    $string = '';
+    $string .= str_repeat("  ", $indent);
+    $string .= "\033[{$colors[$color]}m{$text}\033[0m\n";
+
+    echo $string;
+  }
+
+  /**
    * Display the search results.
    *
    * @param $test_id
@@ -78,16 +105,20 @@ class BehatDrushHelper {
     $logs = $parser->parse(file_get_contents($yml_path));
 
     foreach ($logs as $feature => $steps) {
-      drush_log($feature, 'success');
+      BehatDrushHelper::coolLog($feature, 'blue');
+
       foreach ($steps as $step) {
         if ($step['status'] == 'pass') {
-          drush_log($step['step'], 'success');
+          BehatDrushHelper::coolLog($step['step'], 'green', 1);
         }
         else {
           drush_log(format_string('The tests has failed due to: !error',['!error' => $step['step']]), 'error');
           exit(1);
         }
       }
+      echo "\n";
     }
+
+    $file->remove($yml_path);
   }
 }

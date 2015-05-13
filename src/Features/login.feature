@@ -12,4 +12,4 @@ Feature: Login testing.
       And I fill in "Username" with "foo"
       And I fill in "Password" with "bar"
      When I press "Log in"
-     Then I should see "Sorry, unrkkkecognized username or password."
+     Then I should see "Sorry, unrecognized username or password."

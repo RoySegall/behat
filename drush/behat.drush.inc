@@ -44,7 +44,6 @@ function behat_drush_command() {
  * @throws \Drupal\behat\Exception\BehatException
  */
 function drush_behat_run_tests($provider, $url) {
-
   if (!$provider_info = Behat::getFeatureContexts($provider)) {
     throw new Exception\BehatException(dt('The provider @provider was not found', ['@provider' => $provider]));
   }
