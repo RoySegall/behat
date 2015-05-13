@@ -95,7 +95,7 @@ class Behat {
     // Allow other module to alter the parser key words.
     \Drupal::moduleHandler()->alter('behat_parser_words', $keywords);
 
-    $lexer  = new Lexer($keywords);
+    $lexer = new Lexer($keywords);
 
     return new Parser($lexer);
   }

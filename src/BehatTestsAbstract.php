@@ -5,6 +5,8 @@
  */
 namespace Drupal\behat;
 
+use Behat\Gherkin\Keywords\ArrayKeywords;
+use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Node\ScenarioInterface;
 use Drupal\behat\Exception\BehatStepException;
 use Drupal\simpletest\BrowserTestBase;
@@ -203,6 +205,10 @@ class BehatTestsAbstract extends BrowserTestBase {
 
       $this->afterScenario($scenario);
     }
+  }
+
+  public function addLine() {
+
   }
 
   /**

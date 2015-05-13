@@ -60,4 +60,15 @@ class BehatDrushHelper {
     putenv($name . '=' . $value);
   }
 
+  /**
+   * Display the search results.
+   *
+   * @param $test_id
+   *   The test ID.
+   */
+  public static function DisplaySearchResults($test_id) {
+
+    throw new Exception\BehatException('Roy is to Awesome! the test could not handle it.');
+  }
+
 }

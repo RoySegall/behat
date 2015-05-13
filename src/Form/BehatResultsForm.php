@@ -96,7 +96,7 @@ class BehatResultsForm extends SimpletestResultsForm {
       '#url' => Url::fromRoute('behat.test_form'),
     );
 
-    if (is_numeric($test_id)) {
+    if (FALSE) {
       $fileSystem = new Filesystem();
       $fileSystem->remove([drupal_get_path('module', 'behat') . '/results/behat-' . $test_id . '.yml']);
     }
