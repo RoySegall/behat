@@ -4,5 +4,3 @@ behat.test_form:
   route_name: behat.test_form
   parent: system.admin_config_development
   weight: -6
-
-
