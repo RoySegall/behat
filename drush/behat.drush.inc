@@ -17,17 +17,17 @@ function behat_drush_command() {
   $items = [];
 
   $items['behat-run-tests'] = [
-    'description' => 'Run behat scenarios.',
+    'description' => dt('Run behat scenarios.'),
     'examples' => [
-      'drush bin/behat behat http://localhost/drupal8' => 'Run all the features files provided by the behat module.',
-      'drush bin/behat behat http://localhost/drupal8 --features=login,comment' => 'Run selected features files provided by the behat module.',
+      'drush bin/behat behat http://localhost/drupal8' => dt('Run all the features files provided by the behat module.'),
+      'drush bin/behat behat http://localhost/drupal8 --features=login,comment' => dt('Run selected features files provided by the behat module.'),
     ],
     'arguments' => [
-      'provider' => 'The provider ID as defined in the plugin annotation.',
-      'url' => 'The URL for the Drupal installation.',
+      'provider' => dt('The provider ID as defined in the plugin annotation.'),
+      'url' => dt('The URL for the Drupal installation.'),
     ],
     'options' => [
-      'features' => 'List of features in the provider.',
+      'features' => dt('List of features in the provider.'),
     ],
     'aliases' => ['bin/behat'],
   ];

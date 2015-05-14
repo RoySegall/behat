@@ -184,21 +184,16 @@ class BehatTestsAbstract extends BrowserTestBase {
           $this->executeStep(format_string($step->getText(), $this->placeholders));
 
           // Log the step the file.
-          $content = $this->getYmlFileContent();
-          $content[$scenario->getTitle()][] = [
+          $this->addLine($scenario->getTitle(), [
             'step' => $step->getText(),
             'status' => 'pass',
-          ];
-          $this->writeYmlFile($content);
+          ]);
         }
         catch (\Exception $e) {
-          // Log the step the file.
-          $content = $this->getYmlFileContent();
-          $content[$scenario->getTitle()][] = [
+          $this->addLine($scenario->getTitle(), [
             'step' => $step->getText() . "<br />" . $e->getMessage(),
             'status' => 'fail',
-          ];
-          $this->writeYmlFile($content);
+          ]);
           throw new \Exception($e->getMessage());
         }
       }
@@ -207,8 +202,18 @@ class BehatTestsAbstract extends BrowserTestBase {
     }
   }
 
-  public function addLine() {
-
+  /**
+   * Concatenate values to the yml file.
+   *
+   * @param $key
+   *   The identifier of the rows.
+   * @param $value
+   *   Value to concatenate.
+   */
+  public function addLine($key, $value) {
+    $content = $this->getYmlFileContent();
+    $content[$key][] = $value;
+    $this->writeYmlFile($content);
   }
 
   /**

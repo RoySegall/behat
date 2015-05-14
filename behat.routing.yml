@@ -6,7 +6,7 @@ behat.state_system_page:
   options:
     _admin_route: TRUE
   requirements:
-    _permission: 'access devel information'
+    _permission: 'run behat tests'
 
 behat.test_form:
   path: '/admin/config/development/behat'
