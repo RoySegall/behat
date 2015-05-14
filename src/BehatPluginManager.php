@@ -27,9 +27,9 @@ class BehatPluginManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/Step', $namespaces, $module_handler, NULL, 'Drupal\behat\Annotation\Step');
-    $this->alterInfo('behat_step_alter');
-    $this->setCacheBackend($cache_backend, 'behat_steps');
+    parent::__construct('Plugin/FeatureContext', $namespaces, $module_handler, NULL, 'Drupal\behat\Annotation\FeatureContext');
+    $this->alterInfo('behat_feature_context_alter');
+    $this->setCacheBackend($cache_backend, 'behat_feature_context');
   }
 
 }

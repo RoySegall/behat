@@ -5,8 +5,14 @@
  */
 namespace Drupal\behat;
 
+use Behat\Gherkin\Keywords\ArrayKeywords;
+use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Node\ScenarioInterface;
+use Drupal\behat\Exception\BehatStepException;
 use Drupal\simpletest\BrowserTestBase;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Dumper;
+use Symfony\Component\Yaml\Parser;
 
 /**
  * Simple login test.
@@ -35,93 +41,43 @@ class BehatTestsAbstract extends BrowserTestBase {
   /**
    * @var array
    *
-   * Metadata info.
-   */
-  protected $metadata = [];
-
-  /**
-   * @var array
-   *
    * Holds placeholders for the scenarios.
    */
   protected $placeholders = [];
 
   /**
-   * @var
+   * @var \Symfony\Component\Filesystem\Filesystem
    *
-   * Holds the tag of the running tests.
+   * Symfony file system object.
    */
-  protected $tag;
+  protected $fileSystem;
 
   /**
+   * @var String
+   *
+   * The yml file path.
+   */
+  protected $ymlPath;
+
+  /**
+   * Get the yml file content.
+   *
    * @return mixed
+   *   The yml content.
    */
-  public function getTag() {
-    return $this->tag;
+  public function getYmlFileContent() {
+    $parser = new Parser();
+    return $parser->parse(file_get_contents($this->ymlPath));
   }
 
   /**
-   * @param mixed $tag
+   * Write the content to the file path.
    *
-   * @return BehatTestsAbstract
+   * @param $content
    */
-  public function setTag($tag) {
-    $this->tag = $tag;
-    return $this;
-  }
-
-  /**
-   * @param $key
-   * @param $value
-   *
-   * @return BehatTestsAbstract
-   */
-  public function setMetadata($key, $value) {
-    $this->metadata[$key] = $value;
-    return $this;
-  }
-  /**
-   * @return array
-   */
-  public function getMetadata() {
-    return $this->metadata;
-  }
-
-  /**
-   * @return array
-   */
-  public function getEdit() {
-    return $this->edit;
-  }
-
-  /**
-   * @param $key
-   * @param $value
-   *
-   * @return BehatTestsAbstract
-   */
-  public function setEdit($key, $value) {
-    $this->edit[$key] = $value;
-    return $this;
-  }
-
-  /**
-   * @param null $key
-   * @return array
-   */
-  public function getPlaceholders($key = NULL) {
-    return $key ? $this->placeholders[$key] : $this->placeholders;
-  }
-
-  /**
-   * @param $key
-   * @param $value
-   *
-   * @return BehatTestsAbstract
-   */
-  public function setPlaceholder($key, $value) {
-    $this->placeholders[$key] = $value;
-    return $this;
+  public function writeYmlFile($content) {
+    $dumper = new Dumper();
+    file_put_contents($this->ymlPath, $dumper->dump($content));
   }
 
   /**
@@ -131,7 +87,63 @@ class BehatTestsAbstract extends BrowserTestBase {
    *   The scenario object.
    */
   public function beforeScenario(ScenarioInterface $scenarioInterface = NULL) {
+    // todo: re-think if this is needed.
+    // $this->prepareEnvironment();
+    // $this->installDrupal();
+    // $this->initMink();
+
     $this->drupalGet('user/logout');
+  }
+
+  /**
+   * Get the test ID.
+   *
+   * @return integer
+   *   The test ID.
+   */
+  protected function getTestID() {
+    return getenv('TESTID');
+  }
+
+  /**
+   * Get the features we need to run for each provider.
+   *
+   * @param $name
+   *   The name of the class namespace. i.e:
+   *   Drupal\behat\Plugin\FeatureContext\FeatureContextBase
+   *
+   * @return array
+   *   An array of features files we need to run during the tests.
+   */
+  protected function getFeaturesSettings($name = NULL) {
+    $features = unserialize(getenv('FEATURES_RUN'));
+
+    if ($name && !empty($features[$name])) {
+      return $features[$name];
+    }
+
+    return $features;
+  }
+
+  /**
+   * Get the path for the FeatureContext plugin path.
+   *
+   * @param $name
+   *   The name of the class namespace. i.e:
+   *   Drupal\behat\Plugin\FeatureContext\FeatureContextBase
+   *
+   * @return Array|String
+   *   Array or a single path of FeatureContext plugin and their features files
+   *   path.
+   */
+  protected function getProvidersPath($name = NULL) {
+    $providers = unserialize(getenv('FEATURES_PROVIDERS'));
+
+    if ($name && !empty($providers[$name])) {
+      return $providers[$name];
+    }
+
+    return $providers;
   }
 
   /**
@@ -140,49 +152,50 @@ class BehatTestsAbstract extends BrowserTestBase {
    * @param $scenarioInterface
    *   The scenario object.
    */
-  public function afterScenario(ScenarioInterface $scenarioInterface = NULL) {}
+  public function afterScenario(ScenarioInterface $scenarioInterface = NULL) {
+    // todo: re-think if this needed.
+    // $this->tearDown();
+  }
 
   /**
-   * Execute a scenario from a feature file.
+   * Execute a feature file.
    *
-   * @param $scenario
-   *   The name of the scenario file.
-   * @param $component
-   *   Name of the module/theme.
-   * @param string $type
-   *   The type of the component: module or theme. Default is module.
+   * @param $path
+   *   The path for the feature file.
    *
    * @throws \Exception
    */
-  public function executeScenario($scenario, $component, $type = 'module') {
-    // Get the path of the file.
-    $path = DRUPAL_ROOT . '/' . drupal_get_path($type, $component) . '/src/Features/' . $scenario . '.feature';
-
-    if (!$path) {
+  public function executeFeature($path) {
+    if (!file_exists($path)) {
       throw new \Exception('The scenario is missing from the path ' . $path);
     }
 
     $test = file_get_contents($path);
-
-    // Initialize Behat module step manager.
-    $StepManager = new BehatBase($this);
 
     // Get the parser of the gherkin files.
     $parser = Behat::getParser();
     $scenarios = $parser->parse($test)->getScenarios();
 
     foreach ($scenarios as $scenario) {
-      if ($this->getTag() && !in_array($this->getTag(), $scenario->getTags())) {
-        // Run tests with specific tags.
-        continue;
-      }
-
       $this->beforeScenario($scenario);
 
       foreach ($scenario->getSteps() as $step) {
+        try {
+          $this->executeStep(format_string($step->getText(), $this->placeholders));
 
-        // Invoke the steps.
-        $StepManager->executeStep($step->getText(), $this->getPlaceholders());
+          // Log the step the file.
+          $this->addLine($scenario->getTitle(), [
+            'step' => $step->getText(),
+            'status' => 'pass',
+          ]);
+        }
+        catch (\Exception $e) {
+          $this->addLine($scenario->getTitle(), [
+            'step' => $step->getText() . "<br />" . $e->getMessage(),
+            'status' => 'fail',
+          ]);
+          throw new \Exception($e->getMessage());
+        }
       }
 
       $this->afterScenario($scenario);
@@ -190,24 +203,76 @@ class BehatTestsAbstract extends BrowserTestBase {
   }
 
   /**
-   * Visiting a Drupal page.
+   * Concatenate values to the yml file.
    *
-   * @param $path
-   *   The internal path.
+   * @param $key
+   *   The identifier of the rows.
+   * @param $value
+   *   Value to concatenate.
    */
-  public function visit($path) {
-    $this->drupalGet($path);
-    $this->assertSession()->statusCodeEquals(200);
+  public function addLine($key, $value) {
+    $content = $this->getYmlFileContent();
+    $content[$key][] = $value;
+    $this->writeYmlFile($content);
   }
 
   /**
-   * Sending the form.
-   *
-   * @param $element
-   *   The submit button element.
+   * This method will run all the tests in the current request.
    */
-  public function sendForm($element) {
-    $this->submitForm($this->edit, $element);
+  public function testRunTests() {
+    $this->fileSystem = new FileSystem();
+
+    $testid = $this->getTestID();
+
+    // Create the folder of the behat in case it doesn't exists. When displaying
+    // the results we will remove the file for the test.
+    $behat_path = drupal_get_path('module', 'behat') . '/results';
+    $this->ymlPath = $behat_path . '/behat-' . $testid . '.yml';
+
+    if (!$this->fileSystem->exists($behat_path)) {
+      $this->fileSystem->mkdir($behat_path);
+    }
+
+    if (!$this->fileSystem->exists($this->ymlPath)) {
+      $this->fileSystem->touch($this->ymlPath);
+    }
+
+    $reflection = new \ReflectionClass($this);
+    $name = $reflection->getName();
+
+    // Get the base path of the features files.
+    $base_path = $this->getProvidersPath($name);
+
+    foreach ($this->getFeaturesSettings($name) as $feature) {
+      $this->executeFeature($base_path . $feature);
+    }
+  }
+
+  /**
+   * Find in the current instance a method which match the step definition.
+   *
+   * @param $step_definition
+   *   The step definition.
+   *
+   * @throws BehatStepException
+   */
+  protected function executeStep($step_definition) {
+    $reflection = new \ReflectionObject($this);
+    foreach ($reflection->getMethods() as $method) {
+
+      if (!$step = Behat::getBehatStepDefinition($method->getDocComment())) {
+        continue;
+      }
+
+      if ($results = Behat::stepDefinitionMatch($step, $step_definition)) {
+        // Reflect the instance.
+        $object_reflection = new \ReflectionClass($this);
+        $reflection = new \ReflectionClass($object_reflection->getName());
+
+        // Invoke the method.
+        $reflection->getMethod($method->getName())->invokeArgs($this, $results['arguments']);
+      }
+    }
   }
 
 }

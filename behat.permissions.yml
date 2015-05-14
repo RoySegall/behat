@@ -1,0 +1,3 @@
+run behat tests:
+  title: 'Run behat tests'
+  restrict access: true

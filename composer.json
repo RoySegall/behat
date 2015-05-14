@@ -1,6 +1,7 @@
 {
   "require": {
-    "behat/gherkin":                 "~4.3"
+    "behat/gherkin": "~4.3",
+    "symfony/filesystem": "2.6"
   },
   "config": {
     "vendor-dir": "src/Behat"

@@ -9,6 +9,28 @@ use Drupal\behat\Exception\BehatStepException;
 
 class Behat {
 
+  public static function getFeatureContexts($provider = NULL) {
+    $providers = \Drupal::service('plugin.manager.behat.FeatureContext');
+    return $provider ? $providers->getDefinition($provider) : $providers->getDefinitions();
+  }
+
+  /**
+   * Return list of all the feature files of a module.
+   *
+   * @param $name
+   *   The name of the component.
+   * @param $type
+   *   The type of the component: module or theme. Default to module.
+   * @param $dir
+   *   The directory. Default to src/features.
+   *
+   * @return array
+   *   Array of features name.
+   */
+  public static function getComponentFeatures($name, $type = 'module', $dir = 'src/Features') {
+    return glob(drupal_get_path($type, $name) . '/' . $dir . '/*.feature');
+  }
+
   /**
    * Invoking a step.
    *
@@ -20,25 +42,10 @@ class Behat {
    * @throws BehatStepException
    * @return null|array
    */
-  public static function Step(BehatTestsAbstract $behat, $step_definition) {
-    $steps = \Drupal::service('plugin.manager.behat.step')->getDefinitions();
+  public static function FeatureContext(BehatTestsAbstract $behat, $step_definition) {
+    $featureContext = \Drupal::service('plugin.manager.behat.FeatureContext')->getDefinitions();
 
-    foreach ($steps as $step) {
-      if ($results = self::stepDefinitionMatch($step['id'], $step_definition)) {
-        // Get the step instance.
-        $object = \Drupal::service('plugin.manager.behat.step')->createInstance($results['step']);
-
-        // Reflect the instance.
-        $object_reflection = new \ReflectionClass($object);
-        $reflection = new \ReflectionClass($object_reflection->getName());
-
-        // Invoke the
-        $reflection->getMethod('step')->invokeArgs($object, array($behat) + $results['arguments']);
-        return TRUE;
-      }
-    }
-
-    throw new BehatStepException($step_definition);
+    return $featureContext;
   }
 
   /**
@@ -51,7 +58,7 @@ class Behat {
    * @return array|bool
    */
   static public function stepDefinitionMatch($step, $step_definition) {
-    if (!preg_match('/' . $step . '/', $step_definition, $matches)) {
+    if (!preg_match($step, $step_definition, $matches)) {
       return FALSE;
     }
 
@@ -88,7 +95,7 @@ class Behat {
     // Allow other module to alter the parser key words.
     \Drupal::moduleHandler()->alter('behat_parser_words', $keywords);
 
-    $lexer  = new Lexer($keywords);
+    $lexer = new Lexer($keywords);
 
     return new Parser($lexer);
   }
@@ -97,22 +104,55 @@ class Behat {
    * This is a dummy method for tests of the behat module.
    */
   public static function content() {
-    $parser = self::getParser();
-
-    foreach (glob(drupal_get_path('module', 'behat') . '/src/features/*.feature') as $feature) {
-      $test = file_get_contents($feature);
-      $scenarios = $parser->parse($test)->getScenarios();
-
-      foreach ($scenarios as $scenario) {
-        foreach ($scenario->getSteps() as $step) {
-//          dpm($step);
-        }
-      }
-    }
-
     $element = array(
       '#markup' => 'Hello world!',
     );
     return $element;
   }
+
+  /**
+   * Find the the step definition from the annotation.
+   *
+   * @param $syntax
+   *   The annotation of the method.
+   *
+   * @return string
+   *   The step definition.
+   */
+  public static function getBehatStepDefinition($syntax) {
+
+    if (!$start = strpos($syntax, '@Given ')) {
+      return;
+    }
+
+    $explode = explode("\n", substr($syntax, $start + strlen('@Given ')));
+    return $explode[0];
+  }
+
+  /**
+   * Run a list of tests. The function simpletest_run_tests() run the tests but
+   * not passing the test id variable through the environment variable.
+   *
+   * Since we need to run only PHPUnit tests we can set the test ID to the
+   * environment variable and run the behat tests.
+   *
+   * @see simpletest_run_tests().
+   */
+  public static function runTests($test_list) {
+    $test_id = db_insert('simpletest_test_id')
+      ->useDefaults(array('test_id'))
+      ->execute();
+
+    if (!empty($test_list['phpunit'])) {
+      putenv('TESTID=' . $test_id);
+      $phpunit_results = simpletest_run_phpunit_tests($test_id, $test_list['phpunit']);
+      simpletest_process_phpunit_results($phpunit_results);
+    }
+
+    // Early return if there are no further tests to run.
+    if (empty($test_list['simpletest'])) {
+      return $test_id;
+    }
+  }
+
 }

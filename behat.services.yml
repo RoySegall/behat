@@ -1,4 +1,4 @@
 services:
-  plugin.manager.behat.step:
+  plugin.manager.behat.FeatureContext:
     class: Drupal\behat\BehatPluginManager
     parent: default_plugin_manager
