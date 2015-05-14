@@ -46,6 +46,7 @@ trait BasicTrait {
    * @Given /^I login as user "([^"]*)"$/
    */
   public function iLogIng($name) {
+    exit('sss');
   }
 
 }

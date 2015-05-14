@@ -41,7 +41,7 @@ class FeatureContextBase extends BehatTestsAbstract {
       $permissions = $tests_permissions[$entity_feature];
     }
 
-    $account = $this->drupalCreateUser($permissions);
+    $account = $this->drupalCreateUser();
     $this->placeholders = [
       '@user-name' => $account->label(),
       '@user-pass' => $account->passRaw,
