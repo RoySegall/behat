@@ -24,6 +24,7 @@ function behat_drush_command() {
     ],
     'arguments' => [
       'provider' => 'The provider ID as defined in the plugin annotation.',
+      'url' => 'The URL for the Drupal installation.',
     ],
     'options' => [
       'features' => 'List of features in the provider.',

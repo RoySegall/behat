@@ -69,12 +69,11 @@ class BehatDrushHelper {
    * @param $text
    *   The log text.
    * @param $color
-   *   The color of the log: blue, green, red, yellow or white. Default to
-   *   white.
+   *   The color of the log: blue, green, red or yellow. Default to green.
    * @param int $indent
    *   Number of indentation for the text.
    */
-  public static function coolLog($text, $color = 'white', $indent = 0) {
+  public static function coolLog($text, $color = 'green', $indent = 0) {
     $colors = [
       'blue' => 94,
       'green' => 92,
@@ -97,28 +96,29 @@ class BehatDrushHelper {
    *   The test ID.
    */
   public static function DisplaySearchResults($test_id) {
-    $file = new FileSystem();
-
     $yml_path = drupal_get_path('module', 'behat') . '/results/behat-' . $test_id . '.yml';
 
     $parser = new Parser();
     $logs = $parser->parse(file_get_contents($yml_path));
 
     foreach ($logs as $feature => $steps) {
-      BehatDrushHelper::coolLog($feature, 'blue');
+      BehatDrushHelper::coolLog($feature);
 
       foreach ($steps as $step) {
         if ($step['status'] == 'pass') {
           BehatDrushHelper::coolLog($step['step'], 'green', 1);
         }
         else {
-          drush_log(format_string('The tests has failed due to: !error',['!error' => $step['step']]), 'error');
+          $message = format_string('The tests has failed due to: !error',['!error' => $step['step']]);
+          BehatDrushHelper::coolLog($message, 'red', 1);
           exit(1);
         }
       }
+
       echo "\n";
     }
 
+    $file = new FileSystem();
     $file->remove($yml_path);
   }
 }

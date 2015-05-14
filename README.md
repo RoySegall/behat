@@ -1,86 +1,85 @@
-# Behat for Drupal 8 contribute components.
+# Behat for Drupal 8.
 
 The module provide BDD testing framework to contribute components.
 
 ## How it's works?
-The Behat we all know and love built from a couple of symofony elements. This 
-module use gherkin library which read the cucumber files(AKA *.feature file).
+Each project that use behat for testing have a FeatureContext class that 
+contains the step definition or any other additional information.
 
-After tearing down the feature file to steps definition behat module will search
-for plugins which their ID match the step.
-
-Eventually the behat module is just a layer which sit above the unit test
-framework and trigger PHP commands.
+Each module will need to to implement a FeatureContext plugin that will keep the 
+step definitions and other behat integration(i.e beforeScenario or afterScenario 
+methods).
 
 ## Define a plugin
-Defining a plugin is very easy. All you need to do is to implement Behat step
-definition plugin. For example the `I visit PATH` plugin:
+Behat module implements a FeatureContext plugin:
 
 ```php
 <?php
 
 /**
- * Contains Drupal\behat\Plugin\Step\Visit.
+ * Contains Drupal\behat\Plugin\FeatureContext\FeatureContextBase.
  */
-namespace Drupal\behat\Plugin\Step;
-
-use Drupal\behat\BehatStepAbstract;
-use Drupal\behat\BehatTestsAbstract;
+namespace Drupal\behat\Plugin\FeatureContext;
 
 /**
- * @Step(
- *  id = "I visit '(.*?)'"
+ * @FeatureContext(
+ *   id = "behat",
+ *   label = @Translation("Behat"),
  * )
- */
-class Visit extends BehatStepAbstract {
-
-  public function step(BehatTestsAbstract $behat, $url) {
-    $behat->visit($url);
-  }
-
-}
-```
-
-In the feature file it look like this:
-```cucumber
-  Given I visit 'user'
-```
-
-## Define a test
-The test definition is quite easy as well. Create a file under the `Tests` 
-folder:
-```php
-<?php
-
-/**
- * Simple login test.
- *
- * @group behat
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-class Login extends BehatTestsAbstract {
+class FeatureContextBase extends BehatTestsAbstract {
 
-  public function testLogin() {
+  use BasicTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function beforeScenario(ScenarioInterface $scenarioInterface = NULL) {
+    parent::beforeScenario($scenarioInterface);
+
     $account = $this->drupalCreateUser();
-    $this
-      ->setPlaceholder('@user-name', $account->label())
-      ->setPlaceholder('@user-pass', $account->passRaw)
-      ->executeScenario('login', 'behat');
+    $this->placeholders = [
+      '@user-name' => $account->label(),
+      '@user-pass' => $account->passRaw,
+    ];
   }
-
 }
 ```
 
-You can see there are arguments passed to the steps definition via `$this->setPlaceholder()`
-This wll use us later on in the cucumber files. The key method is `$this->executeScenario()`
-Which invoke a file named `login.feature` under the behat module. If you need to 
-invoke feature file to a theme component you'll need to write 
-`$this->executeScenario('collapsed', 'bootstrap', 'theme');`
+This plugin implements a `beforeScenario` method to create user for testing.
+The `@runTestsInSeparateProcesses` and `@preserveGlobalState disabled` 
+annotation needed by the PHPUnit testing framework for fire up a mink browser
+environment.
+
+## Step definitions
+As mentioned above, the FeatureContext plugin is replacing the FeatureContext 
+class. That class will keep all the step definition. The behat module will 
+provide all the basic step definitions.
+
+The default step definitions defined in a trait. In this way other modules could
+provide more step definition and your FeatureContext could leverage them.
 
 ## Cucumber files
-The cucumber files should be located at MODULE/src/Features/*.feature
+By default all the feature files for will be located at MODULE/src/Features. In
+the future, you could specify other folder location in the plugin definition.
 
-## Patch
-You'll need to patch Drupal core with the latest [patch](https://www.drupal.org/node/2232861)
+## Running the tests
+There are two ways to run the tests. One way is using the UI under 
+`admin/config/development/behat` and you can check which files you want to run.
+This isn't a good practice since it's not running in batch operation.
+
+The base way is to use drush: `drush bin/behat PROVIDER URL`.
+
+The `PROVIDER` is the ID for the FeatureContext plugin. In our case is `behat`.
+
+The `URL` is the URL of your Drupal 8 installation.
+
+For example: `drush bin/behat behat http://localhost/drupal8`
+
+Running specific features could be done with the feature option:
+`drush bin/behat behat http://localhost/drupal8 --features=login`
+
+This will run only the login.feature file defined by the behat module.
