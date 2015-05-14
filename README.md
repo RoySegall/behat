@@ -70,7 +70,7 @@ There are two ways to run the tests. One way is using the UI under
 `admin/config/development/behat` and you can check which files you want to run.
 This isn't a good practice since it's not running in batch operation.
 
-The base way is to use drush: `drush bin/behat PROVIDER URL`.
+The best way is to use drush: `drush bin/behat PROVIDER URL`.
 
 The `PROVIDER` is the ID for the FeatureContext plugin. In our case is `behat`.
 
