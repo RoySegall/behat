@@ -28,7 +28,20 @@ class FeatureContextBase extends BehatTestsAbstract {
   public function beforeScenario(ScenarioInterface $scenarioInterface = NULL) {
     parent::beforeScenario($scenarioInterface);
 
-    $account = $this->drupalCreateUser();
+    $permissions = [];
+    if ($tags = $scenarioInterface->getTags()) {
+      // Keep the permissions for tests with entity.
+      $tests_permissions = [
+        'comment' => ['post comments'],
+        'node' => ['create node'],
+        'taxonomy-term' => 'create terms',
+      ];
+
+      $entity_feature = $tags[0];
+      $permissions = $tests_permissions[$entity_feature];
+    }
+
+    $account = $this->drupalCreateUser($permissions);
     $this->placeholders = [
       '@user-name' => $account->label(),
       '@user-pass' => $account->passRaw,

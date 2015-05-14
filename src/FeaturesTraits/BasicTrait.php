@@ -42,4 +42,10 @@ trait BasicTrait {
     $this->drupalGet($url);
   }
 
+  /**
+   * @Given /^I login as user "([^"]*)"$/
+   */
+  public function iLogIng($name) {
+  }
+
 }

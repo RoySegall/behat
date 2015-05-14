@@ -1,4 +1,5 @@
 Feature: Comment crud.
 
+  @comment
   Scenario: Testing the login form.
-    Given I visit "user"
+    Given I login as user "@user-name"
