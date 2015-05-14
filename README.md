@@ -1,9 +1,9 @@
 # Behat for Drupal 8.
 
-The module provide BDD testing framework to contribute components.
+The module provide BDD testing framework for contribute components.
 
 ## How it's works?
-Each project that use behat for testing have a FeatureContext class that 
+Each project that uses behat as a testing tool have a FeatureContext class that 
 contains the step definition or any other additional information.
 
 Each module will need to to implement a FeatureContext plugin that will keep the 
@@ -49,22 +49,21 @@ class FeatureContextBase extends BehatTestsAbstract {
 }
 ```
 
-This plugin implements a `beforeScenario` method to create user for testing.
+This plugin implements a `beforeScenario` method to a create user for testing.
 The `@runTestsInSeparateProcesses` and `@preserveGlobalState disabled` 
 annotation needed by the PHPUnit testing framework for fire up a mink browser
 environment.
 
 ## Step definitions
 As mentioned above, the FeatureContext plugin is replacing the FeatureContext 
-class. That class will keep all the step definition. The behat module will 
-provide all the basic step definitions.
+class. That class will keep all the step definition.
 
 The default step definitions defined in a trait. In this way other modules could
 provide more step definition and your FeatureContext could leverage them.
 
 ## Cucumber files
-By default all the feature files for will be located at MODULE/src/Features. In
-the future, you could specify other folder location in the plugin definition.
+By default all the feature files will be located at MODULE/src/Features. In the 
+future, you could specify other folder location in the plugin definition.
 
 ## Running the tests
 There are two ways to run the tests. One way is using the UI under 
