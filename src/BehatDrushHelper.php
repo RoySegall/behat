@@ -105,7 +105,6 @@ class BehatDrushHelper {
       BehatDrushHelper::coolLog($feature);
 
       foreach ($steps as $delta => $step) {
-
         if ($step['status'] == 'pass') {
           BehatDrushHelper::coolLog($step['step'], 'green', 1);
         }
