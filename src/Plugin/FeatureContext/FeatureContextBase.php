@@ -7,7 +7,6 @@ namespace Drupal\behat\Plugin\FeatureContext;
 
 use Behat\Gherkin\Node\ScenarioInterface;
 use Drupal\behat\BehatTestsAbstract;
-use Drupal\behat\FeaturesTraits\BasicTrait;
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
 
@@ -53,7 +52,7 @@ class FeatureContextBase extends BehatTestsAbstract {
       $permissions = $tests_permissions[$entity_feature];
     }
 
-    $this->account = $this->drupalCreateUser($permissions);
+    $this->account = $this->drupalCreateUser();
     $this->placeholders = [
       '@user-name' => $this->account->label(),
       '@user-pass' => $this->account->passRaw,
@@ -89,16 +88,6 @@ class FeatureContextBase extends BehatTestsAbstract {
    *   The created node entity.
    */
   protected function drupalCreateNode(array $settings = array()) {
-    // Populate defaults array.
-    $settings += array(
-      'body'      => array(array(
-        'value' => $this->randomMachineName(32),
-        'format' => filter_default_format(),
-      )),
-      'title'     => $this->randomMachineName(8),
-      'type'      => 'page',
-      'uid'       => \Drupal::currentUser()->id(),
-    );
     $node = entity_create('node', $settings);
     $node->save();
 
@@ -152,10 +141,11 @@ class FeatureContextBase extends BehatTestsAbstract {
   }
 
   /**
-   * @Given /^I create node$/
+   * @Given /^I create a node$/
    */
   public function iCreateNode() {
+    $this->addLine('foo', ['step' => print_r(\Drupal::entityManager()->getDefinitions(), TRUE), 'status' => 'pass']);
     $this->node = $this->drupalCreateNode();
-    $this->ivisit($this->node->url());
+//    $this->ivisit($this->node->url());
   }
 }
