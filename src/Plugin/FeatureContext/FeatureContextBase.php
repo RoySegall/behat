@@ -8,6 +8,7 @@ namespace Drupal\behat\Plugin\FeatureContext;
 use Behat\Gherkin\Node\ScenarioInterface;
 use Drupal\behat\BehatTestsAbstract;
 use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 use Drupal\user\Entity\User;
 
 /**
@@ -144,8 +145,8 @@ class FeatureContextBase extends BehatTestsAbstract {
    * @Given /^I create a node$/
    */
   public function iCreateNode() {
-    $this->addLine('foo', ['step' => print_r(\Drupal::entityManager()->getDefinitions(), TRUE), 'status' => 'pass']);
-    $this->node = $this->drupalCreateNode();
+    NodeType::create(['name' => 'page', 'type' => 'page'])->save();
+    Node::create(['type' => 'page', 'title' => 'foo', 'uid' => 1])->save();
 //    $this->ivisit($this->node->url());
   }
 }
