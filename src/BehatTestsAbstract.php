@@ -29,7 +29,7 @@ class BehatTestsAbstract extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['behat'];
+  public static $modules = ['behat', 'node'];
 
   /**
    * @var array
